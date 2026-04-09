@@ -4,28 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supermercado La Despensa</title>
-    <link rel="stylesheet" href="{% static 'css/diseno.css' %}">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/diseno.css'%}">
 </head>
 <body>
-    <button class="toggle-btn" id="toggleBtn">☰</button>
+    <div class="topnav">
+      <a class="active" href="#home">Home</a>
+      <a href="#news">News</a>
+      <a href="#contact">Contact</a>
+      <a href="#about">About</a>
+    </div>
 
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3>Mi Proyecto</h3>
-        </div>
-        <ul class="nav-links">
-            <li><a href="#">Inicio</a></li>
-            <li><a href="#">Proyectos</a></li>
-            <li><a href="#">Servicios</a></li>
-            <li><a href="#">Contacto</a></li>
-        </ul>
-    </nav>
-
-    <main class="main-content" id="mainContent">
-        <h1>Bienvenido</h1>
-        <p>Este es el área de contenido principal.</p>
-    </main>
-    <script src="{% static 'js/nav_bar_colapsible.js' %}"></script>
+    <div style="padding-left:16px">
+      <h2>Top Navigation Example</h2>
+      <p>Some content..</p>
+    </div>
 </body>
 </html>
