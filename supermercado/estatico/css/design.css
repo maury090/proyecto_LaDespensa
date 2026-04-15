@@ -1,31 +1,51 @@
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-}
-.btn_nav_bar{
-  background-color: #6B8E4E;
-}
-.topnav {
-  overflow: hidden;
-  background-color: #6B8E4E;
+
+.mi-nav-personalizada {
+    background-color: #6B8E4E !important; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
 }
 
-.topnav a {
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
+/* 2. Color de la marca (Navbar-brand) */
+.mi-nav-personalizada .navbar-brand {
+    color: #ecf0f1 !important;
+    font-weight: bold;
+    font-size: 1.4rem;
 }
 
-.topnav .btn_nav_bar:hover {
-  background-color: #1A4331;
-  color: white;
-  
+/* 3. Color de los enlaces normales */
+.mi-nav-personalizada .nav-link {
+    color: rgba(236, 240, 241, 0.8) !important; 
+    border-bottom: 2px solid transparent; 
+    transition: all 0.3s ease;
 }
 
-.topnav a.active {
-  background-color: #0000;
-  color: white;
+/* 4. Efecto Hover en los enlaces */
+.mi-nav-personalizada .nav-link:hover {
+    color: #ffffff !important;
+    border-bottom: 3px solid #A65D2E; 
+}
+
+/* 5. Color del enlace activo */
+.mi-nav-personalizada .nav-link.active {
+    color: #1A4331 !important; 
+    font-weight: 500;
+}
+
+/* 6. Personalización del menú desplegable (Dropdown) */
+.mi-nav-personalizada .dropdown-menu {
+    background-color: #6B8E4E;
+    border: none;
+    box-shadow: 0 4px 12px #ffffff;
+}
+
+.mi-nav-personalizada .dropdown-item:hover {
+    background-color: #1A4331;
+    color: #ffffff;
+}
+
+.mi-nav-personalizada .dropdown-item{
+    color: #ffffff;
+}
+.mi-nav-personalizada #logo{
+    height: 50px; 
+    width: auto;
 }
