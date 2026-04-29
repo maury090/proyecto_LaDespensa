@@ -49,3 +49,18 @@
     height: 50px; 
     width: auto;
 }
+
+@media (max-width: 576px) {
+    .mi-nav-personalizada .navbar-brand {
+        font-size: 1.1rem; /* Reducimos la fuente para que no empuje al botón */
+    }
+
+    .mi-nav-personalizada #logo {
+        height: 35px; /* Logo más pequeño en móviles */
+    }
+
+    .mi-nav-personalizada {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+}
