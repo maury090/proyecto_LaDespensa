@@ -10,3 +10,8 @@ def conocenos (request):
 
 def login (request):
     return render (request, 'login.html')
+
+def crearUsuario (request):
+    return render (request, 'crearUsuario.html')
+
+
