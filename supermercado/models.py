@@ -27,6 +27,9 @@ class Producto(models.Model):
     fecha_registro = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
+    # 👇 Nuevo campo para controlar la visibilidad en el index
+    mostrar_en_index = models.BooleanField(default=False, help_text="Marcar para mostrar en inicio")
+    
     class Meta:
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'

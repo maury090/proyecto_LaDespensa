@@ -1,4 +1,3 @@
-
 .mi-nav-personalizada {
     background-color: #6B8E4E !important; 
     box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
@@ -45,22 +44,151 @@
 .mi-nav-personalizada .dropdown-item{
     color: #ffffff;
 }
+
 .mi-nav-personalizada #logo{
     height: 50px; 
     width: auto;
 }
 
+/*logo nav bar*/
 @media (max-width: 576px) {
     .mi-nav-personalizada .navbar-brand {
-        font-size: 1.1rem; /* Reducimos la fuente para que no empuje al botón */
+        font-size: 1.1rem; 
     }
 
     .mi-nav-personalizada #logo {
-        height: 35px; /* Logo más pequeño en móviles */
+        height: 35px; 
     }
 
     .mi-nav-personalizada {
         padding-top: 5px;
         padding-bottom: 5px;
+    }
+}
+
+/* Contenedor centrado y controlado */
+.contenedor-carrusel {
+    max-width: 900px;
+    margin: 30px auto;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Imagen SIN recorte y con límite */
+.img-carrusel {
+    width: 100%;
+    max-height: 500px;    
+    object-fit: contain;  
+    background-color: #f5f5f5; 
+}
+
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+    .img-carrusel {
+        max-height: 250px;
+    }
+
+    .contenedor-carrusel {
+        margin: 10px;
+    }
+}
+
+/* ========== ESTILOS PARA CARDS DE PRODUCTOS (MEJORADOS) ========== */
+
+/* Contenedor de cada card */
+.col {
+    display: flex;
+    justify-content: center;
+}
+
+/* Card individual - TAMAÑO ESTÁNDAR */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 280px;  /* Tamaño estándar */
+    margin: 0 auto;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+/* Imagen del producto */
+.card-img-top {
+    width: 100%;
+    height: 180px;  /* Altura estándar */
+    object-fit: contain;  /* Imagen cubre el espacio sin deformarse */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+/* Título del producto */
+.card-title {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* Precio del producto */
+.card-text strong {
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+/* Botón verde */
+.btn-verde {
+    background-color: #6B8E4E;
+    color: white;
+    border: none;
+    width: 85%;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    margin: 10px auto 0 auto;
+    transition: background-color 0.2s;
+}
+
+.btn-verde:hover {
+    background-color: #557a3e;
+    color: white;
+}
+
+/* ========== RESPONSIVIDAD DE CARDS ========== */
+/* Esto ya lo controla Bootstrap con row-cols, pero aseguramos tamaños */
+
+/* Escritorio: 3 cards por fila */
+@media (min-width: 992px) {
+    .card {
+        max-width: 280px;
+    }
+    .card-img-top {
+        height: 180px;
+    }
+}
+
+/* Tablet: 2 cards por fila */
+@media (min-width: 768px) and (max-width: 991px) {
+    .card {
+        max-width: 260px;
+    }
+    .card-img-top {
+        height: 160px;
+    }
+}
+
+/* Celular: 1 card por fila */
+@media (max-width: 767px) {
+    .card {
+        max-width: 280px;
+    }
+    .card-img-top {
+        height: 170px;
     }
 }
