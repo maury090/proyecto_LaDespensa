@@ -1,3 +1,6 @@
+body {
+    padding-top: 76px;  /* Espacio para que el contenido no quede debajo del navbar */
+}
 .mi-nav-personalizada {
     background-color: #6B8E4E !important; 
     box-shadow: 0 2px 10px rgba(0,0,0,0.2); 

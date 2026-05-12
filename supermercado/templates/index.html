@@ -12,7 +12,7 @@
 </head>
 <body>
     <!--barra de navegacion-->
-    <nav class="navbar navbar-expand-lg mi-nav-personalizada">
+    <nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'index'%}">
           <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo"> 
@@ -32,8 +32,8 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'alimentos' %}">Alimentacion</a></li>
-                <li><a class="dropdown-item" href="#">Bebestibles</a></li>
-                <li><a class="dropdown-item" href="#">Aseo</a></li>
+                <li><a class="dropdown-item" href="{% url 'bebestibles' %}">Bebestibles</a></li>
+                <li><a class="dropdown-item" href="{% url 'aseo' %}">Aseo</a></li>
               </ul>
             </li>
             <li class="nav-item">
@@ -50,7 +50,7 @@
     <!--cuerpo de la pagina-->
     <br>
     <h2 align="center">Bienvenido a Supermercado La Despensa</h2>
-    
+    <br>
     <!--carrusel-->
     <div class="contenedor-carrusel">
       <div id="demo" class="carousel slide" data-bs-ride="carousel">
@@ -81,10 +81,10 @@
         </button>
       </div>
     </div>
-    
+    <br>
     <h4 align="center">Descubre nuestra amplia selección de productos</h4>
-    
-    <!--cards productos muestra-->
+    <br><br
+    <!-- cards productos de muestra -->
     <div class="container">
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
         {% for producto in productos %}
@@ -98,7 +98,9 @@
             <div class="card-body">
               <h5 class="card-title titulo-producto">{{ producto.nombre }}</h5>
               <p class="card-text text-center">
-                <strong class="precio-producto">${{ producto.precio }}</strong>
+                <strong class="precio-producto">Precio normal: ${{ producto.precio }}</strong>
+                <br>
+                <strong class="precio-descuento">Precio oferta: ${{ producto.precio_con_descuento }}</strong>
               </p>
               <a href="#" class="btn-verde">Ver Producto</a>
             </div>
