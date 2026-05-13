@@ -1,5 +1,6 @@
 body {
-    padding-top: 76px;  /* Espacio para que el contenido no quede debajo del navbar */
+    padding-top: 76px;  
+    background-color: #F9F7F0
 }
 .mi-nav-personalizada {
     background-color: #6B8E4E !important; 
@@ -194,4 +195,73 @@ body {
     .card-img-top {
         height: 170px;
     }
+}
+
+/*diseño form login*/
+/* Contenedor principal para centrar el login */
+.login-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* La tarjeta flotante */
+.login-card {
+    max-width: 450px;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Sombra suave para el efecto flotante */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Título personalizado */
+.login-title {
+    color: #1a4331;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Botón Ingresar: Verde #1a4331 */
+.btn-ingresar {
+    background-color: #1a4331;
+    color: white;
+    border: none;
+    padding: 10px 40px; /* Aumentamos el padding horizontal para que tenga cuerpo */
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    min-width: 160px; /* Asegura un tamaño mínimo estético */
+    transition: all 0.3s ease;
+}
+
+.btn-ingresar:hover {
+    background-color: #123023;
+    color: white;
+}
+
+/* Botón Crear Cuenta: Café #a65d2e */
+.btn-registro {
+    background-color: #a65d2e;
+    color: white;
+    border: none;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    width: 50%;
+    padding: 8px 25px;
+}
+
+.btn-registro:hover {
+    background-color: #8a4d26;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Ajustes de espaciado */
+.divider {
+    margin: 1.5rem 0;
+    border-top: 1px solid #dee2e6;
 }
