@@ -271,3 +271,28 @@ body {
     margin: 1.5rem 0;
     border-top: 1px solid #dee2e6;
 }
+
+
+/* Cuando el campo está correcto */
+.is-valid {
+    border-color: #1a4331 !important; /* Tu verde institucional */
+    background-color: rgba(26, 67, 49, 0.05);
+}
+
+/* Mensajes de error un poco más visibles */
+.error-msg {
+    color: #dc3545;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+/*checkbox*/
+.form-check-input:checked {
+    background-color: #1a4331; /* Tu verde institucional */
+    border-color: #1a4331;
+}
+
+.form-check-label a:hover {
+    text-decoration: underline;
+}

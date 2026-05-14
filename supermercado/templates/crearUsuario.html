@@ -46,52 +46,75 @@
     <br>
     <div class="container login-wrapper">
       <div class="login-card">
-
         <h2 class="login-title">Crear nuevo usuario</h2>
-
-        <form action="/action_page.php">
+      
+        <form id="registroForm" action="/action_page.php" method="POST" novalidate>
+          <!-- Nombre -->
           <div class="mb-3">
             <label for="fname" class="form-label">Ingresa tu nombre:</label>
-            <input type="fname" class="form-control" id="fname" placeholder="John" name="fname">
+            <input type="text" class="form-control" id="fname" placeholder="John" name="fname">
+            <div id="error-fname" class="error-msg"></div>
           </div>
+        
+          <!-- Apellido -->
           <div class="mb-3">
             <label for="lname" class="form-label">Ingresa tu apellido:</label>
-            <input type="lname" class="form-control" id="lname" placeholder="Doe" name="lname">
+            <input type="text" class="form-control" id="lname" placeholder="Doe" name="lname">
+            <div id="error-lname" class="error-msg"></div>
           </div>
+
+          <!-- RUT -->
           <div class="mb-3">
             <label for="rut" class="form-label">Ingresa tu rut sin puntos ni guion:</label>
-            <input type="rut" class="form-control" id="rut" placeholder="123456789" name="rut">
+            <input type="text" class="form-control" id="rut" placeholder="123456789" name="rut">
+            <div id="error-rut" class="error-msg"></div>
           </div>
+        
+          <!-- Correo -->
           <div class="mb-3">
-            <label for="email" class="form-label">Ingresa tu correo de usuario:</label>
-            <input type="email" class="form-control" id="email" placeholder="johnDoe@ejemplo.cl" name="email">
-          </div>
-          <div class="mb-3">
-            <label for="pwd" class="form-label">Contraseña:</label>
-            <input type="password" class="form-control" id="pwd" placeholder="Ingresa tu contraseña" name="pswd">
-          </div><div class="mb-3">
-            <label for="pwd" class="form-label">Confirmar contraseña:</label>
-            <input type="password" class="form-control" id="pwd" placeholder="Confirma tu contraseña" name="pswd">
+            <label for="email" class="form-label">Correo electrónico:</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="ejemplo@correo.cl">
+            <div id="error-email" class="error-msg"></div>
           </div>
 
-          <div class="form-check mb-4">
-            <input class="form-check-input" type="checkbox" name="remember" id="remember">
-            <label class="form-check-label" for="remember">Acepta los <a href="#" target="_blank">términos y condiciones</a></label>
+          <!-- Contraseña 1 -->
+          <div class="mb-3">
+            <label for="pwd1" class="form-label">Contraseña:</label>
+            <input type="password" class="form-control" id="pwd1" name="pswd1" placeholder="Mínimo 6 caracteres">
+            <div id="error-pwd1" class="error-msg"></div>
           </div>
 
-          <div class="d-grid justify-content-center" >
-            <button type="submit" class="btn btn-ingresar shadow-sm">Ingresar</button>
+          <!-- Contraseña 2 (Confirmación) -->
+          <div class="mb-3">
+            <label for="pwd2" class="form-label">Confirmar contraseña:</label>
+            <input type="password" class="form-control" id="pwd2" name="pswd2" placeholder="Repite tu contraseña">
+            <div id="error-pwd2" class="error-msg"></div>
           </div>
+
+          <!--checkbox-->
+          <div class="mb-4 form-check text-start">
+            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+            <label class="form-check-label" for="remember" style="font-size: 0.9rem;">
+                Acepto los <a href="#" style="color: #a65d2e; text-decoration: none; font-weight: 600;">términos y condiciones</a>
+            </label>
+            <div id="error-checkbox" class="error-msg" style="color: #dc3545; font-size: 0.8rem;"></div>
+          </div>
+
+          <!--botones-->
+          <div class="d-grid justify-content-center">
+            <button type="btn" class="btn btn-ingresar shadow-sm">Ingresar</button>
+          </div>
+
           <div class="divider"></div>
-
+        
           <div class="text-center">
             <a href="{% url 'login' %}" class="btn btn-registro btn-sm px-4">Atrás</a>
           </div>
         </form>
-
       </div>
     </div>
     <!--bootstrap-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/validacionCrearCli.js' %}"></script>
 </body>
 </html>
