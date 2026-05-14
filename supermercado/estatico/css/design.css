@@ -231,17 +231,18 @@ body {
     background-color: #1a4331;
     color: white;
     border: none;
-    padding: 10px 40px; /* Aumentamos el padding horizontal para que tenga cuerpo */
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 8px;
-    min-width: 160px; /* Asegura un tamaño mínimo estético */
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    /* Cambio clave: Usamos un ancho fijo para evitar el colapso de la imagen 791833 */
+    width: 220px; 
+    padding: 10px 25px;
+    border-radius: 8px; /* Para que coincida con la estética de la imagen */
+    display: inline-block;
 }
 
 .btn-ingresar:hover {
     background-color: #123023;
     color: white;
+    transform: translateY(-1px);
 }
 
 /* Botón Crear Cuenta: Café #a65d2e */
@@ -250,8 +251,13 @@ body {
     color: white;
     border: none;
     transition: transform 0.2s ease, background-color 0.3s ease;
-    width: 50%;
-    padding: 8px 25px;
+    /* Misma medida exacta que el botón de arriba */
+    width: 220px; 
+    padding: 10px 25px;
+    border-radius: 8px;
+    display: inline-block;
+    text-decoration: none; /* Elimina subrayado si es un enlace <a> */
+    text-align: center;
 }
 
 .btn-registro:hover {
