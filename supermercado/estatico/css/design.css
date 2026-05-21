@@ -1,6 +1,10 @@
 body {
     padding-top: 76px;  
-    background-color: #F9F7F0
+    background-color: #F9F7F0;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
 }
 .mi-nav-personalizada {
     background-color: #6B8E4E !important; 
@@ -295,4 +299,28 @@ body {
 
 .form-check-label a:hover {
     text-decoration: underline;
+}
+
+/*footer*/
+/* Estilos del Footer con tu color específico */
+.footer-custom {
+    flex-shrink: 0; /* Esto evita que el footer se "encoja" */
+    background-color:  #557a3e !important; /* Tu color verde oscuro */
+    color: #ffffff;
+    width: 100%;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.footer-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+.footer-logo{
+    width: 50%;
+    height: auto;
 }

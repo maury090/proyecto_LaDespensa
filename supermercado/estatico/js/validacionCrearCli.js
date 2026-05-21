@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // descomenta la siguiente línea:
             // formulario.submit(); 
         } else {
-            console.log("Existen errores en el formulario. Registro detenido.");
+            console.log("Existen errores en el formulario. Registro denegado.");
         }
     });
 });

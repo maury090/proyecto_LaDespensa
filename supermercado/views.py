@@ -59,3 +59,6 @@ def bebestibles (request):
             producto.precio_con_descuento = None  
     
     return render(request, 'bebestibles.html', {'productos': productos})
+
+def terminosCondiciones (request):
+    return render (request, 'terminosCondiciones.html')

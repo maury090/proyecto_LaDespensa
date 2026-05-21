@@ -4,14 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aseo</title>
+    <title>Terminos y Condiciones</title>
     <!--bootstrap-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!--css-->
     <link rel="stylesheet" href="{% static 'css/design.css' %}">
 </head>
 <body>
-    <!--barra de navegacion-->
     <nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'index'%}"><img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo"> 
@@ -25,7 +23,7 @@
               <a class="nav-link " aria-current="page" href="{% url 'index' %}">Inicio</a>
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Productos
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
@@ -38,81 +36,56 @@
               <a class="nav-link" href="{% url 'conocenos' %}">Conocenos</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Iniciar sesion</a>
+              <a class="nav-link active" href="{% url 'login' %}">Iniciar sesion</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
+
     <!--cuerpo de la pagina-->
-    <div class="container mt-4">
-      <h2 class="text-center mb-2"><Strong>Articulos de Aseo</Strong></h2>
-      <p class="text-center text-muted mb-4">Articulos para el cuidado del hogar</p>
+    
+    <div class="container mt-5 pt-5">
+        <h1 class="mb-4">Términos y Condiciones</h1>
+        <p>Bienvenido a Supermercado La Despensa. Al utilizar nuestro sitio web, aceptas cumplir con los siguientes términos y condiciones:</p>
+        
+        <h3>1. Uso del Sitio Web</h3>
+        <p>El contenido de este sitio web es solo para fines informativos. Nos reservamos el derecho de modificar o eliminar cualquier contenido sin previo aviso.</p>
+        
+        <h3>2. Propiedad Intelectual</h3>
+        <p>Todo el contenido del sitio web, incluyendo texto, imágenes, logotipos y gráficos, es propiedad de Supermercado La Despensa y está protegido por las leyes de propiedad intelectual.</p>
+        
+        <h3>3. Responsabilidad</h3>
+        <p>No somos responsables por cualquier daño o pérdida que pueda resultar del uso o la imposibilidad de usar nuestro sitio web.</p>
+        
+        <h3>4. Cambios en los Términos</h3>
+        <p>Nos reservamos el derecho de actualizar estos términos y condiciones en cualquier momento. Te recomendamos revisar esta página periódicamente para estar al tanto de cualquier cambio.</p>
+        
+        <p>Si tienes alguna pregunta sobre nuestros términos y condiciones, no dudes en contactarnos.</p>
 
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
-          {% for producto in productos %}
-          <div class="col d-flex justify-content-center">
-              <div class="card h-100 card-producto">
-                  {% if producto.imagen %}
-                      <img src="{{ producto.imagen.url }}" class="card-img-top img-producto" alt="{{ producto.nombre }}">
-                  {% else %}
-                      <img src="{% static 'imagenes/imagenes_propaganda/producto_placeholder.png' %}" class="card-img-top img-producto" alt="Sin imagen">
-                  {% endif %}
-                  <div class="card-body">
-                      <h5 class="card-title titulo-producto text-center">{{ producto.nombre }}</h5>
-
-                      {% if producto.precio_con_descuento and producto.mostrar_en_index %}
-                      <!-- Producto CON descuento (mostrar precio original tachado + nuevo precio) -->
-                        <div class="precio-container text-center">
-                          <span class="precio-original">Precio normal: ${{ producto.precio }}</span>
-                          <br>
-                          <strong class="precio-descuento">Precio oferta: ${{ producto.precio_con_descuento }}</strong>
-                          
-                        </div>
-                        {% else %}
-                        <!-- Producto SIN descuento (solo precio normal sin tachar) -->
-                          <div class="text-center">
-                            <strong class="precio-normal">Precio: ${{ producto.precio }}</strong>
-                          </div>
-                      {% endif %}
-
-                      <a href="#" class="btn-verde">Ver Producto</a>
-                  </div>
-              </div>
-          </div>
-          {% empty %}
-          <div class="col-12 text-center">
-              <p>No hay productos disponibles en aseo.</p>
-              <p>Agrega productos al <a href="/admin/supermercado/producto/">panel de administración</a>.</p>
-          </div>
-          {% endfor %}
-      </div>
+        <div class="text-center">
+            <a href="{% url 'crearUsuario' %}" class="btn btn-registro btn-sm px-4">Atrás</a>
+        </div>
     </div>
-
     <!--footer-->
     <footer class="footer-custom">
       <div class="container text-center">
           <div class="row py-4">
               <div class="col-md-4 mb-3">
-                <br>
                   <h5 class="footer-brand">Supermercado La Despensa</h5>
                   <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="Logo" class="footer-logo mb-2">
                   <p class="small">Más cerca de ti</p>
               </div>
               <div class="col-md-4 mb-3">
-                <br>
                   <h6 class="text-uppercase fw-bold">Enlaces</h6>
                   <ul class="list-unstyled">
-                    <br>
                       <li><a href="{% url 'index' %}" class="footer-link">Inicio</a></li>
-                      <li><a href="{% url 'crearUsuario' %}" class="footer-link">Registrate como cliente</a></li>
-                      <li><a href="{% url 'conocenos' %}" class="footer-link">Conocenos</a></li>
+                      <li><a href="#" class="footer-link">Productos</a></li>
+                      <li><a href="#" class="footer-link">Contacto</a></li>
                   </ul>
               </div>
               <div class="col-md-4 mb-3">
-                  <br>
                   <h6 class="text-uppercase fw-bold">Contacto</h6>
-                  <br>
                   <p class="small mb-0">info@ladespensa.cl</p>
                   <p class="small">+56 9 1234 5678</p>
               </div>
@@ -123,7 +96,5 @@
           </div>
       </div>
     </footer>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
