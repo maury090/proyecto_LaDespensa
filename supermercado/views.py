@@ -1,64 +1,243 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Producto, Categoria
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from django.http import JsonResponse
+import re
+
+# ========== FUNCIÓN PARA VALIDAR RUT CHILENO ==========
+def validar_rut_chileno(rut):
+    """
+    Valida un RUT chileno con algoritmo de módulo 11.
+    Soporta RUT con o sin puntos, con o sin guión.
+    Ejemplos válidos: 12345678K, 12345678-9, 12.345.678-K
+    """
+    # Limpiar el RUT: eliminar puntos, guiones y espacios
+    rut = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
+    
+    # Verificar formato básico (solo números y posible K al final)
+    if len(rut) < 2:
+        return False
+    
+    cuerpo = rut[:-1]  # Los números (cuerpo del RUT)
+    dv_ingresado = rut[-1]  # El dígito verificador (puede ser número o K)
+    
+    # Validar que el cuerpo solo tenga números
+    if not cuerpo.isdigit():
+        return False
+    
+    # Calcular dígito verificador esperado (algoritmo módulo 11)
+    suma = 0
+    multiplicador = 2
+    
+    # Recorrer el cuerpo de derecha a izquierda
+    for digito in reversed(cuerpo):
+        suma += int(digito) * multiplicador
+        multiplicador += 1
+        if multiplicador == 8:
+            multiplicador = 2
+    
+    resto = suma % 11
+    dv_esperado = 11 - resto
+    
+    # Convertir según las reglas del RUT chileno
+    if dv_esperado == 11:
+        dv_esperado = '0'
+    elif dv_esperado == 10:
+        dv_esperado = 'K'
+    else:
+        dv_esperado = str(dv_esperado)
+    
+    # Comparar el dígito ingresado con el esperado
+    return dv_ingresado == dv_esperado
 
 
+# ========== VISTAS PRINCIPALES ==========
 def index(request):
     # Obtener productos marcados para mostrar en el index
     productos = Producto.objects.filter(mostrar_en_index=True)
     
     # Aplicar 10% de descuento a cada producto
     for producto in productos:
-        producto.precio_con_descuento = int(producto.precio * 0.9)  # 10% descuento
+        producto.precio_con_descuento = int(producto.precio * 0.9)
     
     return render(request, 'index.html', {'productos': productos})
 
-def conocenos (request):
-    return render (request, 'conocenos.html')
 
-def login (request):
-    return render (request, 'login.html')
+def conocenos(request):
+    return render(request, 'conocenos.html')
 
-def crearUsuario (request):
-    return render (request, 'crearUsuario.html')
 
-def alimentos (request):
-    #llama al id de la categoria
-    productos = Producto.objects.filter(categoria_id=4)  
+def login(request):
+    return render(request, 'login.html')
+
+
+# ========== CREACIÓN DE USUARIO (CON VALIDACIÓN COMPLETA Y JSON) ==========
+def crearUsuario(request):
+    # Verificar si es una petición AJAX
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
-    #aplicacion de descuento
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nombre = request.POST.get('fname', '').strip()
+        apellido = request.POST.get('lname', '').strip()
+        rut = request.POST.get('rut', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('pswd1', '')
+        password2 = request.POST.get('pswd2', '')
+        acepta_terminos = request.POST.get('remember', False)
+        
+        # Lista para acumular errores
+        errores = []
+        
+        # ========== 1. VALIDACIÓN DE NOMBRE ==========
+        if not nombre:
+            errores.append('❌ El nombre es obligatorio.')
+        elif len(nombre) < 3:
+            errores.append('❌ El nombre debe tener al menos 3 caracteres.')
+        elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', nombre):
+            errores.append('❌ El nombre solo puede contener letras.')
+        
+        # ========== 2. VALIDACIÓN DE APELLIDO ==========
+        if not apellido:
+            errores.append('❌ El apellido es obligatorio.')
+        elif len(apellido) < 3:
+            errores.append('❌ El apellido debe tener al menos 3 caracteres.')
+        elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', apellido):
+            errores.append('❌ El apellido solo puede contener letras.')
+        
+        # ========== 3. VALIDACIÓN DE RUT (con algoritmo chileno) ==========
+        if not rut:
+            errores.append('❌ El RUT es obligatorio.')
+        elif not validar_rut_chileno(rut):
+            errores.append('❌ RUT no válido. Ejemplo: 12345678K o 123456789')
+        
+        # ========== 4. VALIDACIÓN DE EMAIL ==========
+        if not email:
+            errores.append('❌ El correo electrónico es obligatorio.')
+        elif not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            errores.append('❌ El formato del correo electrónico no es válido.')
+        elif User.objects.filter(email=email).exists():
+            errores.append('❌ Este correo electrónico ya está registrado.')
+        
+        # ========== 5. VALIDACIÓN DE CONTRASEÑA ==========
+        if not password:
+            errores.append('❌ La contraseña es obligatoria.')
+        elif len(password) < 6:
+            errores.append('❌ La contraseña debe tener al menos 6 caracteres.')
+        
+        # ========== 6. VALIDACIÓN DE CONFIRMACIÓN ==========
+        if not password2:
+            errores.append('❌ Debes confirmar tu contraseña.')
+        elif password != password2:
+            errores.append('❌ Las contraseñas no coinciden.')
+        
+        # ========== 7. VALIDACIÓN DE TÉRMINOS Y CONDICIONES ==========
+        if not acepta_terminos:
+            errores.append('❌ Debes aceptar los términos y condiciones.')
+        
+        # ========== 8. VALIDAR RUT NO DUPLICADO ==========
+        # Limpiar RUT para usar como username
+        rut_limpio = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
+        username = f"cliente_{rut_limpio}"
+        if User.objects.filter(username=username).exists():
+            errores.append('❌ Este RUT ya está registrado como usuario.')
+        
+        # ========== 9. SI HAY ERRORES, RESPONDER ==========
+        if errores:
+            if is_ajax:
+                # Respuesta JSON para AJAX
+                return JsonResponse({
+                    'success': False,
+                    'message': errores[0]  # Enviamos solo el primer error
+                })
+            else:
+                # Respuesta tradicional (para navegadores sin JS)
+                for error in errores:
+                    messages.error(request, error)
+                return render(request, 'crearUsuario.html')
+        
+        # ========== 10. CREAR USUARIO ==========
+        try:
+            usuario = User.objects.create(
+                username=username,
+                first_name=nombre,
+                last_name=apellido,
+                email=email,
+                password=make_password(password),
+                is_staff=False,
+                is_superuser=False,
+                is_active=True
+            )
+            usuario.save()
+            
+            if is_ajax:
+                # Respuesta JSON para AJAX
+                return JsonResponse({
+                    'success': True,
+                    'message': '✅ ¡Usuario creado correctamente! Redirigiendo al inicio de sesión...',
+                    'redirect_url': '/login/'
+                })
+            else:
+                # Respuesta tradicional
+                messages.success(request, '✅ ¡Usuario creado correctamente! Ya puedes iniciar sesión.')
+                return redirect('login')
+            
+        except Exception as e:
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'❌ Error al crear usuario: {str(e)}'
+                })
+            else:
+                messages.error(request, f'❌ Error al crear usuario: {str(e)}')
+                return render(request, 'crearUsuario.html')
+    
+    # Si no es POST, mostrar el formulario
+    return render(request, 'crearUsuario.html')
+
+
+# ========== VISTAS DE CATEGORÍAS ==========
+def alimentos(request):
+    # llama al id de la categoria (Alimentos = id 4)
+    productos = Producto.objects.filter(categoria_id=4)
+    
+    # aplicación de descuento solo a productos destacados
     for producto in productos:
         if producto.mostrar_en_index:
             producto.precio_con_descuento = int(producto.precio * 0.9)
         else:
             producto.precio_con_descuento = None
+    
+    return render(request, 'alimentos.html', {'productos': productos})
 
-    return render (request, 'alimentos.html', {'productos': productos})
 
-def aseo (request):
+def aseo(request):
     productos = Producto.objects.filter(categoria_id=5)
-
+    
     for producto in productos:
         if producto.mostrar_en_index:
             producto.precio_con_descuento = int(producto.precio * 0.9)
         else:
             producto.precio_con_descuento = None
+    
+    return render(request, 'aseo.html', {'productos': productos})
 
-    return render (request, 'aseo.html', {'productos': productos})
 
-def bebestibles (request):
-    #llamado de ids
-    productos = Producto.objects.filter(
-        categoria_id__in=[2, 3]  
-    )
-
-    #descuento del 10% 
+def bebestibles(request):
+    # llamado de ids: 2 = No alcohólicos, 3 = Alcohólicos
+    productos = Producto.objects.filter(categoria_id__in=[2, 3])
+    
+    # descuento del 10% solo para productos destacados
     for producto in productos:
         if producto.mostrar_en_index:
             producto.precio_con_descuento = int(producto.precio * 0.9)
         else:
-            producto.precio_con_descuento = None  
+            producto.precio_con_descuento = None
     
     return render(request, 'bebestibles.html', {'productos': productos})
 
-def terminosCondiciones (request):
-    return render (request, 'terminosCondiciones.html')
+
+def terminosCondiciones(request):
+    return render(request, 'terminosCondiciones.html')
