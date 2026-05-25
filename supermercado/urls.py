@@ -10,5 +10,7 @@ urlpatterns = [
     path('aseo/', views.aseo, name='aseo'),
     path('bebestibles/', views.bebestibles, name='bebestibles'),
     path('terminosCondiciones/', views.terminosCondiciones, name='terminosCondiciones'),
+    path('vistas_admin/panel_admin/', views.panel_admin, name='panel_admin'),
+    path('logout/', views.logout, name='logout'),
 ]
 

@@ -45,36 +45,49 @@
       </div>
     </nav>
     <!--cuerpo pagina-->
-    <div class="container login-wrapper">
+    <!-- Mensajes de Django -->
+  <div class="container mt-5 pt-3">
+      {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          {% endfor %}
+      {% endif %}
+  </div>
+
+  <div class="container login-wrapper">
       <div class="login-card">
+          <h2 class="login-title">Iniciar Sesión</h2>
 
-        <h2 class="login-title">Iniciar Sesión</h2>
+          <form method="POST" action="{% url 'login' %}">
+              {% csrf_token %}
 
-        <form action="/action_page.php">
-          <div class="mb-3">
-            <label for="email" class="form-label">Ingresa tu correo de usuario:</label>
-            <input type="email" class="form-control" id="email" placeholder="johnDoe@ejemplo.cl" name="email">
+              <div class="mb-3">
+                  <label for="username" class="form-label">Correo electrónico:</label>
+                  <input type="text" class="form-control" id="username" name="username" placeholder="Ingresa tu email" required>
+              </div>
+
+              <div class="mb-3">
+                  <label for="password" class="form-label">Contraseña:</label>
+                  <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+              </div>
+
+              <div class="d-grid justify-content-center">
+                  <button type="submit" class="btn btn-ingresar shadow-sm">Ingresar</button>
+              </div>
+          </form>
+
+          <div class="divider"></div>
+
+          <div class="text-center">
+              <p class="mb-2 text-muted small">¿No estás registrado?</p>
+              <a href="{% url 'crearUsuario' %}" class="btn btn-registro btn-sm px-4">Crear cuenta</a>
           </div>
-
-          <div class="mb-3">
-            <label for="pwd" class="form-label">Contraseña:</label>
-            <input type="password" class="form-control" id="pwd" placeholder="Ingresa tu contraseña" name="pswd">
-          </div>
-
-          <div class="d-grid justify-content-center">
-            <button type="submit" class="btn btn-ingresar shadow-sm">Ingresar</button>
-          </div>
-        </form>
-
-        <div class="divider"></div>
-
-        <div class="text-center">
-          <p class="mb-2 text-muted small">¿No estás registrado?</p>
-          <a href="{% url 'crearUsuario' %}" class="btn btn-registro btn-sm px-4">Crear cuenta</a>
-        </div>
-
       </div>
-    </div>
+  </div>
+
     <!--footer-->
     <footer class="footer-custom">
       <div class="container text-center">

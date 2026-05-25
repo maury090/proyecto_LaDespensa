@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
+from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout as auth_logout
 import re
 
 # ========== FUNCIÓN PARA VALIDAR RUT CHILENO ==========
@@ -68,9 +71,28 @@ def index(request):
 def conocenos(request):
     return render(request, 'conocenos.html')
 
-
 def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            auth_login(request, user)
+            
+            # Redirigir según el tipo de usuario
+            if user.is_staff or user.is_superuser:
+                # Si es administrador, va al panel de admin
+                return redirect('panel_admin')
+            else:
+                # Si es cliente normal, va al inicio
+                return redirect('index')
+        else:
+            messages.error(request, '❌ Usuario o contraseña incorrectos.')
+    
     return render(request, 'login.html')
+
 
 
 # ========== CREACIÓN DE USUARIO (CON VALIDACIÓN COMPLETA Y JSON) ==========
@@ -142,7 +164,7 @@ def crearUsuario(request):
         rut_limpio = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
         username = f"cliente_{rut_limpio}"
         if User.objects.filter(username=username).exists():
-            errores.append('❌ Este RUT ya está registrado como usuario.')
+            errores.append('❌ Este RUT ya está registrado.')
         
         # ========== 9. SI HAY ERRORES, RESPONDER ==========
         if errores:
@@ -188,10 +210,10 @@ def crearUsuario(request):
             if is_ajax:
                 return JsonResponse({
                     'success': False,
-                    'message': f'❌ Error al crear usuario: {str(e)}'
+                    'message': f' Error al crear usuario: {str(e)}'
                 })
             else:
-                messages.error(request, f'❌ Error al crear usuario: {str(e)}')
+                messages.error(request, f' Error al crear usuario: {str(e)}')
                 return render(request, 'crearUsuario.html')
     
     # Si no es POST, mostrar el formulario
@@ -241,3 +263,21 @@ def bebestibles(request):
 
 def terminosCondiciones(request):
     return render(request, 'terminosCondiciones.html')
+
+###===============vista para mostrar perfil de usuario registrado en bd =========================
+
+@login_required
+def panel_admin(request):
+    # Obtener el usuario actual
+    usuario = request.user
+    nombre_completo = f"{usuario.first_name} {usuario.last_name}"
+    
+    # Si el usuario no tiene nombre, mostrar su username
+    if not usuario.first_name and not usuario.last_name:
+        nombre_completo = usuario.username
+    
+    return render(request, 'vistas_admin/panel_admin.html', {'nombre_completo': nombre_completo})
+
+def logout(request):
+    auth_logout(request)
+    return redirect('index')

@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(formulario);
             
             // Enviar por AJAX
-            fetch('/crear-usuario/', {
+            fetch('/crearUsuario/', {
                 method: 'POST',
                 body: formData,
                 headers: {

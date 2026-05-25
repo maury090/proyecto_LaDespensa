@@ -44,25 +44,13 @@
       </div>
     </nav>
 
-    <!-- Mensajes de Django -->
-    <div class="container mt-5 pt-3">
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-
     <!--formulario creacion de nuevo usuario-->
     <br>
     <div class="container login-wrapper">
       <div class="login-card">
         <h2 class="login-title">Crear nuevo usuario</h2>
       
-        <form id="registroForm" action="{% url 'crearUsuario' %}" method="POST" novalidate>
+        <form id="registroForm" method="POST"  action="{% url 'crearUsuario' %}" novalidate>
           {% csrf_token %}
           
           <!-- Nombre -->
@@ -81,8 +69,8 @@
 
           <!-- RUT -->
           <div class="mb-3">
-            <label for="rut" class="form-label">Ingresa tu rut sin puntos ni guion (si tu dv es K cambia por 1):</label>
-            <input type="text" class="form-control" id="rut" placeholder="123456789" name="rut">
+            <label for="rut" class="form-label">Ingresa tu rut sin puntos ni guion:</label>
+            <input type="text" class="form-control" id="rut" placeholder="12345678K" name="rut">
             <div id="error-rut" class="error-msg"></div>
           </div>
         
@@ -126,20 +114,10 @@
           <div class="text-center">
             <a href="{% url 'login' %}" class="btn btn-registro btn-sm px-4">Atrás</a>
           </div>
-
-          <div class="container mt-5 pt-3">
-            {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-            {% endif %}
-          </div>
         </form>
       </div>
     </div>
+    <br>
 
     <!--footer-->
     <footer class="footer-custom">
