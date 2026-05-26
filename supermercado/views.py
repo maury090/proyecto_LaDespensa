@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 import re
 
-# ========== FUNCIÓN PARA VALIDAR RUT CHILENO ==========
+# validacion de rut chileno 
 def validar_rut_chileno(rut):
     """
     Valida un RUT chileno con algoritmo de módulo 11.
@@ -95,7 +95,7 @@ def login(request):
 
 
 
-# ========== CREACIÓN DE USUARIO (CON VALIDACIÓN COMPLETA Y JSON) ==========
+# creacion de usuario, con validacion y json response para ajax
 def crearUsuario(request):
     # Verificar si es una petición AJAX
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -115,56 +115,56 @@ def crearUsuario(request):
         
         # ========== 1. VALIDACIÓN DE NOMBRE ==========
         if not nombre:
-            errores.append('❌ El nombre es obligatorio.')
+            errores.append(' El nombre es obligatorio.')
         elif len(nombre) < 3:
-            errores.append('❌ El nombre debe tener al menos 3 caracteres.')
+            errores.append(' El nombre debe tener al menos 3 caracteres.')
         elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', nombre):
-            errores.append('❌ El nombre solo puede contener letras.')
+            errores.append(' El nombre solo puede contener letras.')
         
         # ========== 2. VALIDACIÓN DE APELLIDO ==========
         if not apellido:
-            errores.append('❌ El apellido es obligatorio.')
+            errores.append(' El apellido es obligatorio.')
         elif len(apellido) < 3:
-            errores.append('❌ El apellido debe tener al menos 3 caracteres.')
+            errores.append(' El apellido debe tener al menos 3 caracteres.')
         elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', apellido):
-            errores.append('❌ El apellido solo puede contener letras.')
+            errores.append(' El apellido solo puede contener letras.')
         
         # ========== 3. VALIDACIÓN DE RUT (con algoritmo chileno) ==========
         if not rut:
-            errores.append('❌ El RUT es obligatorio.')
+            errores.append(' El RUT es obligatorio.')
         elif not validar_rut_chileno(rut):
-            errores.append('❌ RUT no válido. Ejemplo: 12345678K o 123456789')
+            errores.append(' RUT no válido. Ejemplo: 12345678K o 123456789')
         
         # ========== 4. VALIDACIÓN DE EMAIL ==========
         if not email:
-            errores.append('❌ El correo electrónico es obligatorio.')
+            errores.append(' El correo electrónico es obligatorio.')
         elif not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
-            errores.append('❌ El formato del correo electrónico no es válido.')
+            errores.append(' El formato del correo electrónico no es válido.')
         elif User.objects.filter(email=email).exists():
-            errores.append('❌ Este correo electrónico ya está registrado.')
+            errores.append(' Este correo electrónico ya está registrado.')
         
         # ========== 5. VALIDACIÓN DE CONTRASEÑA ==========
         if not password:
-            errores.append('❌ La contraseña es obligatoria.')
+            errores.append(' La contraseña es obligatoria.')
         elif len(password) < 6:
-            errores.append('❌ La contraseña debe tener al menos 6 caracteres.')
+            errores.append(' La contraseña debe tener al menos 6 caracteres.')
         
         # ========== 6. VALIDACIÓN DE CONFIRMACIÓN ==========
         if not password2:
-            errores.append('❌ Debes confirmar tu contraseña.')
+            errores.append(' Debes confirmar tu contraseña.')
         elif password != password2:
-            errores.append('❌ Las contraseñas no coinciden.')
+            errores.append(' Las contraseñas no coinciden.')
         
         # ========== 7. VALIDACIÓN DE TÉRMINOS Y CONDICIONES ==========
         if not acepta_terminos:
-            errores.append('❌ Debes aceptar los términos y condiciones.')
+            errores.append(' Debes aceptar los términos y condiciones.')
         
         # ========== 8. VALIDAR RUT NO DUPLICADO ==========
         # Limpiar RUT para usar como username
         rut_limpio = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
         username = f"cliente_{rut_limpio}"
         if User.objects.filter(username=username).exists():
-            errores.append('❌ Este RUT ya está registrado.')
+            errores.append(' Este RUT ya está registrado.')
         
         # ========== 9. SI HAY ERRORES, RESPONDER ==========
         if errores:
@@ -198,12 +198,12 @@ def crearUsuario(request):
                 # Respuesta JSON para AJAX
                 return JsonResponse({
                     'success': True,
-                    'message': '✅ ¡Usuario creado correctamente! Redirigiendo al inicio de sesión...',
+                    'message': ' ¡Usuario creado correctamente! Redirigiendo al inicio de sesión...',
                     'redirect_url': '/login/'
                 })
             else:
                 # Respuesta tradicional
-                messages.success(request, '✅ ¡Usuario creado correctamente! Ya puedes iniciar sesión.')
+                messages.success(request, ' ¡Usuario creado correctamente! Ya puedes iniciar sesión.')
                 return redirect('login')
             
         except Exception as e:
@@ -220,7 +220,7 @@ def crearUsuario(request):
     return render(request, 'crearUsuario.html')
 
 
-# ========== VISTAS DE CATEGORÍAS ==========
+# VISTAS DE CATEGORIAS 
 def alimentos(request):
     # llama al id de la categoria (Alimentos = id 4)
     productos = Producto.objects.filter(categoria_id=4)
@@ -264,7 +264,7 @@ def bebestibles(request):
 def terminosCondiciones(request):
     return render(request, 'terminosCondiciones.html')
 
-###===============vista para mostrar perfil de usuario registrado en bd =========================
+# vista para mostrar perfil de usuario registrado en bd 
 
 @login_required
 def panel_admin(request):
@@ -281,3 +281,28 @@ def panel_admin(request):
 def logout(request):
     auth_logout(request)
     return redirect('index')
+
+# vistas para el usuario admin 
+def inventario_admin(request):
+    # Obtener todos los productos
+    productos = Producto.objects.all()
+    
+    # Obtener todas las categorías para el filtro
+    categorias = Categoria.objects.all()
+    
+    # Verificar en consola cuántos productos hay (para depuración)
+    print(f"Productos encontrados: {productos.count()}")
+    
+    context = {
+        'productos': productos,
+        'categorias': categorias
+    }
+    
+    return render(request, 'vistas_admin/inventario_admin.html', context)
+
+
+def administracion_usuarios_admin(request):
+    return render(request, 'vistas_admin/administracion_usuarios_admin.html')
+
+def estadisticas_admin(request):
+    return render(request, 'vistas_admin/estadisticas_admin.html')

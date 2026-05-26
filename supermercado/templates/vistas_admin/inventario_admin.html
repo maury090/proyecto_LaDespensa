@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo">
+            <span class="texto_marca">Supermercado La Despensa</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'inventario_admin' %}">Inventario</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-5">
+    <h2 class="mb-4" align="center"> Gestión de Inventario</h2>
+    
+    <!-- Filtro por categoría -->
+    <!-- Filtro por categoría -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label class="form-label fw-bold">📂 Filtrar por categoría</label>
+                    <select id="filtroCategoria" class="form-select form-select-lg">
+                        <option value="todas">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.nombre }}">{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <a href="/admin/supermercado/producto/add/" class="btn btn-success w-100 py-2">
+                        <i class="fas fa-plus-circle"></i> Agregar nuevo producto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabla de productos -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tablaProductos">
+            <thead class="table-success">
+                <tr>
+                    <th>ID</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Producto en oferta</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr data-categoria="{{ producto.categoria.nombre }}">
+                    <td>{{ producto.id_producto }}</td>
+                    <td>{{ producto.codigo }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.categoria.nombre }}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.stock }}</td>
+                    <td>
+                        {% if producto.mostrar_en_index %}
+                        <span class="badge bg-success"> Aplica 10%</span>
+                        {% else %}
+                        <span class="badge bg-secondary"> No aplica</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/supermercado/producto/{{ producto.id_producto }}/change/" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar" data-id="{{ producto.id_producto }}" data-nombre="{{ producto.nombre }}">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No hay productos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">⚠️ Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalMensaje">
+                ¿Estás seguro de eliminar este producto?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a href="#" id="btnConfirmarEliminar" class="btn btn-danger">Eliminar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer-custom mt-5">
+    <div class="container text-center">
+        <div class="py-3">
+            <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Filtro por categoría
+    const selectCategoria = document.getElementById('filtroCategoria');
+    const tabla = document.getElementById('tablaProductos');
+    const filas = tabla.querySelectorAll('tbody tr');
+
+    function filtrarProductos() {
+        const categoriaSeleccionada = selectCategoria.value;
+        
+        filas.forEach(fila => {
+            const categoria = fila.getAttribute('data-categoria') || '';
+            
+            if (categoriaSeleccionada === 'todas' || categoria === categoriaSeleccionada) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    selectCategoria.addEventListener('change', filtrarProductos);
+
+    // Modal de eliminación
+    const modalEliminar = document.getElementById('modalEliminar');
+    modalEliminar.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const productoId = button.getAttribute('data-id');
+        const productoNombre = button.getAttribute('data-nombre');
+        
+        const modalBody = document.getElementById('modalMensaje');
+        modalBody.innerHTML = `¿Estás seguro de eliminar el producto "<strong>${productoNombre}</strong>"? Esta acción no se puede deshacer.`;
+        
+        const btnConfirmar = document.getElementById('btnConfirmarEliminar');
+        btnConfirmar.href = `/admin/supermercado/producto/${productoId}/delete/`;
+    });
+</script>
+</body>
+</html>
