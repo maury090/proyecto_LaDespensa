@@ -12,7 +12,7 @@
 
 <nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'panel_admin' %}">
+        <a class="navbar-brand" href="">
             <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo">
             <span class="texto_marca">Supermercado La Despensa</span>
         </a>
@@ -21,7 +21,10 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'panel_admin' %}">Inicio Admin</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'inventario_admin' %}">Inventario</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'estadisticas_admin' %}">Estadísticas</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'administracion_usuarios_admin' %}">Gestión de Usuarios</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
             </ul>
         </div>

@@ -324,3 +324,104 @@ body {
     width: 50%;
     height: auto;
 }
+
+/* ========== ESTILOS PARA PERFIL DE CLIENTE ========== */
+
+/* Card de perfil - SIN ANIMACIONES */
+.perfil-card {
+    min-height: 500px;
+    width: 100%;
+    max-width: 700px;  /* Aumentado de 100% a 700px */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: none;
+    transform: none;
+}
+
+.perfil-card:hover {
+    transform: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.perfil-card .card-body {
+    flex: 1;
+    padding: 2rem 2.5rem;  /* Más padding lateral */
+}
+
+.perfil-card .card-header {
+    background-color: #6B8E4E;
+    border-bottom: none;
+}
+
+.perfil-card .card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding: 1.2rem;
+}
+
+/* Tabla de perfil - Más ancha */
+.perfil-card table {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.perfil-card th {
+    width: 35%;  /* Reducido de 40% a 35% para dar más espacio al texto */
+    padding: 15px 0;
+    color: #1A4331;
+    font-weight: 600;
+    vertical-align: top;
+}
+
+.perfil-card td {
+    padding: 15px 0 15px 20px;  /* Espacio entre columna y texto */
+    color: #2c3e50;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* Dirección no especificada */
+.direccion-pendiente {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive para perfil en móviles */
+@media (max-width: 768px) {
+    .perfil-card {
+        max-width: 95%;
+        min-height: auto;
+    }
+    
+    .perfil-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .perfil-card th,
+    .perfil-card td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+    
+    .perfil-card td {
+        padding-left: 0;
+    }
+    
+    .perfil-card th {
+        padding-top: 15px;
+        padding-bottom: 5px;
+    }
+    
+    .perfil-card td {
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .perfil-card tr:last-child td {
+        border-bottom: none;
+    }
+}

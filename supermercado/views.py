@@ -72,6 +72,7 @@ def conocenos(request):
     return render(request, 'conocenos.html')
 
 def login(request):
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -87,11 +88,12 @@ def login(request):
                 return redirect('panel_admin')
             else:
                 # Si es cliente normal, va al inicio
-                return redirect('index')
+                return redirect('perfil_cli') 
         else:
             messages.error(request, '❌ Usuario o contraseña incorrectos.')
     
     return render(request, 'login.html')
+
 
 
 
@@ -306,3 +308,23 @@ def administracion_usuarios_admin(request):
 
 def estadisticas_admin(request):
     return render(request, 'vistas_admin/estadisticas_admin.html')
+
+#llamado de datos perfil cliente
+@login_required
+def perfil_cli(request):
+    usuario = request.user
+    perfil = usuario.perfil
+    direccion = perfil.direccion if perfil.direccion else "Domicilio no especificado"
+    
+    context = {
+        'nombre_completo': f"{usuario.first_name} {usuario.last_name}",
+        'email': usuario.email,
+        'rut': perfil.rut if perfil.rut else "No especificado",
+        'direccion': direccion,
+        'username': usuario.username,
+    }
+    return render(request, 'vistas_cliente/perfil_cli.html', context)
+#llamado de datos perfil supervisor
+@login_required
+def perfil_superv(request):
+    return render(request, 'perfil_superv.html')

@@ -15,5 +15,7 @@ urlpatterns = [
     path('vistas_admin/inventario_admin/', views.inventario_admin, name='inventario_admin'),
     path('vistas_admin/administracion_usuarios_admin/', views.administracion_usuarios_admin, name='administracion_usuarios_admin'),
     path('vistas_admin/estadisticas_admin/', views.estadisticas_admin, name='estadisticas_admin'),
+    path('vistas_cliente/perfil_cli/', views.perfil_cli, name='perfil_cli'),
+    path('vistas_supervisor/perfil_superv/', views.perfil_superv, name='perfil_superv'),
 ]
 
