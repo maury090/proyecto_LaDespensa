@@ -134,3 +134,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Autenticación personalizada (permite login con email o username)
+AUTHENTICATION_BACKENDS = [
+    'supermercado.autenticacion_login.EmailOrUsernameBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Backup por si falla
+]
