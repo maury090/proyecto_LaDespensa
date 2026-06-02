@@ -181,7 +181,7 @@ def crearUsuario(request):
                 for error in errores:
                     messages.error(request, error)
                 return render(request, 'crearUsuario.html')
-        
+            
         # ========== 10. CREAR USUARIO ==========
         try:
             usuario = User.objects.create(
@@ -195,19 +195,22 @@ def crearUsuario(request):
                 is_active=True
             )
             usuario.save()
-            
+
+            # ========== GUARDAR RUT EN EL PERFIL ==========
+            perfil = usuario.perfil
+            perfil.rut = rut_limpio
+            perfil.save()
+
             if is_ajax:
-                # Respuesta JSON para AJAX
                 return JsonResponse({
                     'success': True,
                     'message': ' ¡Usuario creado correctamente! Redirigiendo al inicio de sesión...',
                     'redirect_url': '/login/'
                 })
             else:
-                # Respuesta tradicional
                 messages.success(request, ' ¡Usuario creado correctamente! Ya puedes iniciar sesión.')
                 return redirect('login')
-            
+
         except Exception as e:
             if is_ajax:
                 return JsonResponse({
