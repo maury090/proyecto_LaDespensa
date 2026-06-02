@@ -8,6 +8,11 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 import re
+from django.contrib.auth.decorators import user_passes_test
+
+# Función para verificar si es administrador
+def es_administrador(user):
+    return user.is_authenticated and user.is_staff
 
 # validacion de rut chileno 
 def validar_rut_chileno(rut):
@@ -288,6 +293,8 @@ def logout(request):
     return redirect('index')
 
 # vistas para el usuario admin 
+
+@user_passes_test(es_administrador)
 def inventario_admin(request):
     # Obtener todos los productos
     productos = Producto.objects.all()
@@ -305,10 +312,11 @@ def inventario_admin(request):
     
     return render(request, 'vistas_admin/inventario_admin.html', context)
 
-
+@user_passes_test(es_administrador)
 def administracion_usuarios_admin(request):
     return render(request, 'vistas_admin/administracion_usuarios_admin.html')
 
+@user_passes_test(es_administrador)
 def estadisticas_admin(request):
     return render(request, 'vistas_admin/estadisticas_admin.html')
 
@@ -327,6 +335,8 @@ def perfil_cli(request):
         'username': usuario.username,
     }
     return render(request, 'vistas_cliente/perfil_cli.html', context)
+
+
 #llamado de datos perfil supervisor
 @login_required
 def perfil_superv(request):
