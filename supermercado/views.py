@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 import re
 from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Función para verificar si es administrador
 def es_administrador(user):
@@ -314,7 +315,29 @@ def inventario_admin(request):
 
 @user_passes_test(es_administrador)
 def administracion_usuarios_admin(request):
-    return render(request, 'vistas_admin/administracion_usuarios_admin.html')
+    # Obtener todos los usuarios (excluyendo superusuarios si quieres)
+    usuarios = User.objects.all().filter(is_superuser=False, is_staff=False).order_by('last_name')
+    
+    # Preparar datos para la tabla
+    lista_usuarios = []
+    for user in usuarios:
+        lista_usuarios.append({
+            'id': user.id,
+            'first_name': user.first_name if user.first_name else "No especificado",
+            'last_name': user.last_name if user.last_name else "No especificado",
+            'rut': user.perfil.rut if hasattr(user, 'perfil') and user.perfil.rut else "No especificado",
+            'email': user.email,
+            'direccion': user.perfil.direccion if hasattr(user, 'perfil') and user.perfil.direccion else "No especificada",
+            'is_active': user.is_active,
+            'is_staff': user.is_staff,
+        })
+    
+    context = {
+        'usuarios': lista_usuarios,
+        'total_usuarios': len(lista_usuarios)
+    }
+    
+    return render(request, 'vistas_admin/administracion_usuarios_admin.html',context)
 
 @user_passes_test(es_administrador)
 def estadisticas_admin(request):
@@ -341,3 +364,33 @@ def perfil_cli(request):
 @login_required
 def perfil_superv(request):
     return render(request, 'perfil_superv.html')
+
+
+@user_passes_test(es_administrador)
+def vista_perfil_admin(request, usuario_id):
+    # Obtener el usuario por su ID
+    usuario = get_object_or_404(User, id=usuario_id)
+    
+    # Obtener datos del perfil
+    perfil = usuario.perfil if hasattr(usuario, 'perfil') else None
+    
+    # Preparar datos para la plantilla
+    datos_usuario = {
+        'id': usuario.id,
+        'username': usuario.username,
+        'first_name': usuario.first_name if usuario.first_name else "No especificado",
+        'last_name': usuario.last_name if usuario.last_name else "No especificado",
+        'email': usuario.email,
+        'rut': perfil.rut if perfil and perfil.rut else "No especificado",
+        'direccion': perfil.direccion if perfil and perfil.direccion else "No especificada",
+        'telefono': perfil.telefono if perfil and perfil.telefono else "No especificado",
+        'fecha_registro': usuario.date_joined,
+        'ultimo_acceso': usuario.last_login,
+        'is_active': usuario.is_active,
+    }
+    
+    context = {
+        'usuario': datos_usuario
+    }
+    
+    return render(request, 'vistas_admin/vista_perfil_admin.html', context)

@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Cliente - Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo">
+            <span class="texto_marca">Supermercado La Despensa</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a></li><li class="nav-item"><a class="nav-link" href="{% url 'inventario_admin' %}">Inventario</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'estadisticas_admin' %}">Estadísticas</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'administracion_usuarios_admin' %}">Gestión de Usuarios</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow perfil-card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0" align="center"> Perfil de Cliente</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Nombre completo:</th>
+                            <td>{{ usuario.first_name }} {{ usuario.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Nombre de usuario:</th>
+                            <td>{{ usuario.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Correo electrónico:</th>
+                            <td>{{ usuario.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>RUT:</th>
+                            <td>{{ usuario.rut }}</td>
+                        </tr>
+                        <tr>
+                            <th>Dirección:</th>
+                            <td>{{ usuario.direccion }}</td>
+                        </tr>
+                        <tr>
+                            <th>Teléfono:</th>
+                            <td>{{ usuario.telefono }}</td>
+                        </tr>
+                        <tr>
+                            <th>Fecha de registro:</th>
+                            <td>{{ usuario.fecha_registro|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Último acceso:</th>
+                            <td>{{ usuario.ultimo_acceso|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Estado:</th>
+                            <td>
+                                {% if usuario.is_active %}
+                                <span class="badge bg-success">✓ Activo</span>
+                                {% else %}
+                                <span class="badge bg-danger">✗ Inactivo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'administracion_usuarios_admin' %}" class="btn btn-verde">Volver a Usuarios</a>
+                    <a href="#" class="btn btn-warning">✏️ Editar información</a>
+                    <a href="{% url 'panel_admin' %}" class="btn btn-secondary">Volver al Panel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer-custom mt-5">
+    <div class="container text-center">
+        <div class="py-3">
+            <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

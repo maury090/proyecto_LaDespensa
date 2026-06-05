@@ -21,7 +21,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link active" href="{% url 'panel_admin' %}">Inicio Admin</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'panel_admin' %}">Panel Admin</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'inventario_admin' %}">Inventario</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'estadisticas_admin' %}">Estadísticas</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'administracion_usuarios_admin' %}">Gestión de Usuarios</a></li>
@@ -37,10 +37,15 @@
         <h1 class="display-4 mb-4">Bienvenido</h1>
         <h2 class="text-success mb-4">{{ nombre_completo }}</h2>
         <p class="lead">Has iniciado sesión como Administrador</p>
+
         <!--boton inventario-->
-        <a href="{% url 'inventario_admin' %}" class="btn btn-success btn-lg mx-2">
-            📦 Gestionar Inventario
-        </a>
+        <a href="{% url 'inventario_admin' %}" class="btn btn-success btn-lg mx-2">Gestionar Inventario</a> <br><br>
+
+        <!--gestion de usuarios-->
+        <a href="{% url 'administracion_usuarios_admin' %}" class="btn btn-success btn-lg mx-2">Gestionar Usuarios</a> <br><br>
+        <!--ver vistas de la pagina-->
+        <a href="{% url 'index' %}" class="btn btn-success btn-lg mx-2">Revisar vistas</a> <br><br>
+
         <!-- Botón rojo para cerrar sesión -->
         <a href="{% url 'logout' %}" class="btn btn-danger btn-lg mt-4 px-5 py-3">
              Cerrar Sesión

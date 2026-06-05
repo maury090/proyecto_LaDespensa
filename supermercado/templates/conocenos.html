@@ -38,7 +38,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'conocenos' %}">Conocenos</a>
+                        <a class="nav-link active" href="{% url 'conocenos' %}">Conocenos</a>
                     </li>
 
                     <!--muestra de nombre segun el usuario logeado-->
@@ -58,11 +58,6 @@
                     {% endif %}
 
                     {% if user.is_authenticated and user.is_staff %}
-                    <li class="nav-item">
-                        <span class="nav-link text-white fw-bold">
-                             {{ user.first_name|default:user.username }}
-                        </span>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a>
                     </li>
