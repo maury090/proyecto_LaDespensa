@@ -69,3 +69,46 @@ def crear_perfil_usuario(sender, instance, created, **kwargs):
 def guardar_perfil_usuario(sender, instance, **kwargs):
     if hasattr(instance, 'perfil'):
         instance.perfil.save()
+
+
+
+#carrito de compras 
+class Carrito(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='carrito')
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Carrito'
+        verbose_name_plural = 'Carritos'
+    
+    def __str__(self):
+        return f"Carrito de {self.usuario.username}"
+    
+    def get_total(self):
+        """Calcula el total del carrito"""
+        total = sum(item.get_subtotal() for item in self.items.all())
+        return total
+    
+    def get_cantidad_items(self):
+        """Calcula la cantidad total de productos en el carrito"""
+        return sum(item.cantidad for item in self.items.all())
+
+
+class CarritoItem(models.Model):
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='items')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+    agregado_en = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Item del carrito'
+        verbose_name_plural = 'Items del carrito'
+        unique_together = ['carrito', 'producto']  # Evita duplicados
+    
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre}"
+    
+    def get_subtotal(self):
+        """Calcula el subtotal del item (cantidad * precio)"""
+        return self.cantidad * self.producto.precio

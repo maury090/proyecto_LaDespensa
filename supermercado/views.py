@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Producto, Categoria
+from .models import Producto, Categoria , Carrito, CarritoItem
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
@@ -10,6 +10,8 @@ from django.contrib.auth import logout as auth_logout
 import re
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
+
+
 
 # Función para verificar si es administrador
 def es_administrador(user):
@@ -70,12 +72,24 @@ def index(request):
     # Aplicar 10% de descuento a cada producto
     for producto in productos:
         producto.precio_con_descuento = int(producto.precio * 0.9)
+
     
-    return render(request, 'index.html', {'productos': productos})
+    # Obtener cantidad del carrito si el usuario está logueado
+    cantidad_carrito = 0
+    if request.user.is_authenticated and not request.user.is_staff:
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        cantidad_carrito = carrito.get_cantidad_items()
+    
+    
+    return render(request, 'index.html', {'productos': productos, 'cantidad_items': cantidad_carrito})
 
 
 def conocenos(request):
-    return render(request, 'conocenos.html')
+    cantidad_carrito = 0
+    if request.user.is_authenticated and not request.user.is_staff:
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        cantidad_carrito = carrito.get_cantidad_items()
+    return render(request, 'conocenos.html', {'cantidad_items': cantidad_carrito})
 
 def login(request):
 
@@ -242,8 +256,13 @@ def alimentos(request):
             producto.precio_con_descuento = int(producto.precio * 0.9)
         else:
             producto.precio_con_descuento = None
-    
-    return render(request, 'alimentos.html', {'productos': productos})
+     # Obtener cantidad del carrito si el usuario está logueado
+    cantidad_carrito = 0
+    if request.user.is_authenticated and not request.user.is_staff:
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        cantidad_carrito = carrito.get_cantidad_items()
+        
+    return render(request, 'alimentos.html', {'productos': productos, 'cantidad_items': cantidad_carrito})
 
 
 def aseo(request):
@@ -255,7 +274,13 @@ def aseo(request):
         else:
             producto.precio_con_descuento = None
     
-    return render(request, 'aseo.html', {'productos': productos})
+    # Obtener cantidad del carrito si el usuario está logueado
+    cantidad_carrito = 0
+    if request.user.is_authenticated and not request.user.is_staff:
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        cantidad_carrito = carrito.get_cantidad_items()
+
+    return render(request, 'aseo.html', {'productos': productos, 'cantidad_items': cantidad_carrito})
 
 
 def bebestibles(request):
@@ -269,11 +294,44 @@ def bebestibles(request):
         else:
             producto.precio_con_descuento = None
     
-    return render(request, 'bebestibles.html', {'productos': productos})
+    # Obtener cantidad del carrito si el usuario está logueado
+    cantidad_carrito = 0
+    if request.user.is_authenticated and not request.user.is_staff:
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        cantidad_carrito = carrito.get_cantidad_items()
+
+    return render(request, 'bebestibles.html', {'productos': productos, 'cantidad_items': cantidad_carrito})
 
 
 def terminosCondiciones(request):
     return render(request, 'terminosCondiciones.html')
+
+# vista muestra datos de producto seleccionado
+def desc_producto(request, producto_id):
+    
+    # Obtener el producto por su ID
+    producto = get_object_or_404(Producto, id_producto=producto_id)
+    
+    # Calcular precio con descuento si aplica
+    if producto.mostrar_en_index:
+        precio_con_descuento = int(producto.precio * 0.9)
+    else:
+        precio_con_descuento = None
+
+    cantidad_carrito = 0
+    if request.user.is_authenticated and not request.user.is_staff:
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        cantidad_carrito = carrito.get_cantidad_items()
+    
+    context = {
+        'producto': producto,
+        'precio_con_descuento': precio_con_descuento,
+        'cantidad_items': cantidad_carrito
+    }
+
+    
+    
+    return render(request, 'desc_producto.html', context)
 
 # vista para mostrar perfil de usuario registrado en bd 
 
@@ -394,3 +452,84 @@ def vista_perfil_admin(request, usuario_id):
     }
     
     return render(request, 'vistas_admin/vista_perfil_admin.html', context)
+
+
+#carrito de compras 
+@login_required
+def agregar_al_carrito(request, producto_id):
+    """Agrega un producto al carrito del usuario y responde con JSON"""
+    if request.method == 'POST':
+        producto = get_object_or_404(Producto, id_producto=producto_id)
+        
+        # Obtener o crear el carrito del usuario
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+        
+        # Verificar si el producto ya está en el carrito
+        carrito_item, created = CarritoItem.objects.get_or_create(
+            carrito=carrito,
+            producto=producto
+        )
+        
+        if not created:
+            # Si ya existe, aumentar la cantidad
+            carrito_item.cantidad += 1
+            carrito_item.save()
+        
+        # Actualizar sesión
+        request.session['cantidad_carrito'] = carrito.get_cantidad_items()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{producto.nombre} añadido al carrito',
+            'cantidad': carrito_item.cantidad,
+            'total_items': carrito.get_cantidad_items()
+        })
+    
+    return JsonResponse({'success': False, 'message': 'Error al agregar producto'})
+
+@login_required
+def ver_carrito(request):
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+    items = carrito.items.all()
+    total = carrito.get_total()
+    
+    # Guardar la cantidad en la sesión para usarla en el navbar
+    request.session['cantidad_carrito'] = carrito.get_cantidad_items()
+    
+    context = {
+        'items': items,
+        'total': total,
+        'cantidad_items': carrito.get_cantidad_items()
+    }
+    return render(request, 'vistas_cliente/carrito.html', context)
+
+@login_required
+def eliminar_del_carrito(request, item_id):
+    """Elimina un item del carrito"""
+    carrito_item = get_object_or_404(CarritoItem, id=item_id, carrito__usuario=request.user)
+    carrito = carrito_item.carrito
+    carrito_item.delete()
+    
+    # Actualizar sesión
+    request.session['cantidad_carrito'] = carrito.get_cantidad_items()
+    
+    return redirect('ver_carrito')
+
+@login_required
+def actualizar_cantidad(request, item_id):
+    """Actualiza la cantidad de un producto en el carrito"""
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 1))
+        carrito_item = get_object_or_404(CarritoItem, id=item_id, carrito__usuario=request.user)
+        carrito = carrito_item.carrito
+        
+        if cantidad > 0:
+            carrito_item.cantidad = cantidad
+            carrito_item.save()
+        else:
+            carrito_item.delete()
+        
+        # Actualizar sesión
+        request.session['cantidad_carrito'] = carrito.get_cantidad_items()
+    
+    return redirect('ver_carrito')
