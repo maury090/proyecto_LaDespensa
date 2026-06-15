@@ -17,13 +17,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 def es_administrador(user):
     return user.is_authenticated and user.is_staff
 
-# validacion de rut chileno 
+# validacion de rut 
 def validar_rut_chileno(rut):
-    """
-    Valida un RUT chileno con algoritmo de módulo 11.
-    Soporta RUT con o sin puntos, con o sin guión.
-    Ejemplos válidos: 12345678K, 12345678-9, 12.345.678-K
-    """
+    
     # Limpiar el RUT: eliminar puntos, guiones y espacios
     rut = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
     
@@ -31,14 +27,14 @@ def validar_rut_chileno(rut):
     if len(rut) < 2:
         return False
     
-    cuerpo = rut[:-1]  # Los números (cuerpo del RUT)
-    dv_ingresado = rut[-1]  # El dígito verificador (puede ser número o K)
+    cuerpo = rut[:-1]  #cuerpo del rut
+    dv_ingresado = rut[-1]  #dv
     
-    # Validar que el cuerpo solo tenga números
+    # validar que el cuerpo solo tenga números
     if not cuerpo.isdigit():
         return False
     
-    # Calcular dígito verificador esperado (algoritmo módulo 11)
+    # calcular dígito verificador correspondiente al calculo del rut
     suma = 0
     multiplicador = 2
     
@@ -52,7 +48,7 @@ def validar_rut_chileno(rut):
     resto = suma % 11
     dv_esperado = 11 - resto
     
-    # Convertir según las reglas del RUT chileno
+    # convertir según las reglas del rut
     if dv_esperado == 11:
         dv_esperado = '0'
     elif dv_esperado == 10:
@@ -60,16 +56,17 @@ def validar_rut_chileno(rut):
     else:
         dv_esperado = str(dv_esperado)
     
-    # Comparar el dígito ingresado con el esperado
+    # comparar el dígito ingresado con el esperado
     return dv_ingresado == dv_esperado
 
 
-# ========== VISTAS PRINCIPALES ==========
+# vistas principales del proyecto
 def index(request):
-    # Obtener productos marcados para mostrar en el index
+
+    # obtener productos marcados para mostrar en el index
     productos = Producto.objects.filter(mostrar_en_index=True)
     
-    # Aplicar 10% de descuento a cada producto
+    # 10% desc para prodcutos mostrados en index 
     for producto in productos:
         producto.precio_con_descuento = int(producto.precio * 0.9)
 
@@ -135,7 +132,7 @@ def crearUsuario(request):
         # Lista para acumular errores
         errores = []
         
-        # ========== 1. VALIDACIÓN DE NOMBRE ==========
+        # validacion nombre
         if not nombre:
             errores.append(' El nombre es obligatorio.')
         elif len(nombre) < 3:
@@ -143,7 +140,7 @@ def crearUsuario(request):
         elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', nombre):
             errores.append(' El nombre solo puede contener letras.')
         
-        # ========== 2. VALIDACIÓN DE APELLIDO ==========
+        # validacion apellido
         if not apellido:
             errores.append(' El apellido es obligatorio.')
         elif len(apellido) < 3:
@@ -151,13 +148,13 @@ def crearUsuario(request):
         elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', apellido):
             errores.append(' El apellido solo puede contener letras.')
         
-        # ========== 3. VALIDACIÓN DE RUT (con algoritmo chileno) ==========
+        # val rut
         if not rut:
             errores.append(' El RUT es obligatorio.')
         elif not validar_rut_chileno(rut):
             errores.append(' RUT no válido. Ejemplo: 12345678K o 123456789')
         
-        # ========== 4. VALIDACIÓN DE EMAIL ==========
+        # validacion correo
         if not email:
             errores.append(' El correo electrónico es obligatorio.')
         elif not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
@@ -165,44 +162,44 @@ def crearUsuario(request):
         elif User.objects.filter(email=email).exists():
             errores.append(' Este correo electrónico ya está registrado.')
         
-        # ========== 5. VALIDACIÓN DE CONTRASEÑA ==========
+        # validacion password
         if not password:
             errores.append(' La contraseña es obligatoria.')
         elif len(password) < 6:
             errores.append(' La contraseña debe tener al menos 6 caracteres.')
         
-        # ========== 6. VALIDACIÓN DE CONFIRMACIÓN ==========
+        # confirmacion password
         if not password2:
             errores.append(' Debes confirmar tu contraseña.')
         elif password != password2:
             errores.append(' Las contraseñas no coinciden.')
         
-        # ========== 7. VALIDACIÓN DE TÉRMINOS Y CONDICIONES ==========
+        # terminos y condiciones
         if not acepta_terminos:
             errores.append(' Debes aceptar los términos y condiciones.')
         
-        # ========== 8. VALIDAR RUT NO DUPLICADO ==========
+        # rut no duplicado
         # Limpiar RUT para usar como username
         rut_limpio = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
         username = f"cliente_{rut_limpio}"
         if User.objects.filter(username=username).exists():
             errores.append(' Este RUT ya está registrado.')
         
-        # ========== 9. SI HAY ERRORES, RESPONDER ==========
+        # respuesta en caso de errores
         if errores:
             if is_ajax:
                 # Respuesta JSON para AJAX
                 return JsonResponse({
                     'success': False,
-                    'message': errores[0]  # Enviamos solo el primer error
+                    'message': errores[0]  
                 })
             else:
-                # Respuesta tradicional (para navegadores sin JS)
+                
                 for error in errores:
                     messages.error(request, error)
                 return render(request, 'crearUsuario.html')
             
-        # ========== 10. CREAR USUARIO ==========
+        # creacion de usuario si no hay errores 
         try:
             usuario = User.objects.create(
                 username=username,
@@ -216,7 +213,7 @@ def crearUsuario(request):
             )
             usuario.save()
 
-            # ========== GUARDAR RUT EN EL PERFIL ==========
+            # guardado de rut en perfil cliente
             perfil = usuario.perfil
             perfil.rut = rut_limpio
             perfil.save()
@@ -241,11 +238,11 @@ def crearUsuario(request):
                 messages.error(request, f' Error al crear usuario: {str(e)}')
                 return render(request, 'crearUsuario.html')
     
-    # Si no es POST, mostrar el formulario
+    
     return render(request, 'crearUsuario.html')
 
 
-# VISTAS DE CATEGORIAS 
+# categorias de productos  
 def alimentos(request):
     # llama al id de la categoria (Alimentos = id 4)
     productos = Producto.objects.filter(categoria_id=4)
@@ -417,6 +414,59 @@ def perfil_cli(request):
     }
     return render(request, 'vistas_cliente/perfil_cli.html', context)
 
+#actualizacion de datos cliente 
+@login_required
+def actualizarDatos(request):
+    usuario = request.user
+    perfil = usuario.perfil
+    
+    # Lista de comunas de la provincia de Quillota
+    comunas = [
+        'Quillota',
+        'La Cruz',
+        'La Calera',
+        'Nogales',
+        'Hijuelas'
+    ]
+    
+    # Separar dirección actual (si existe)
+    direccion_actual = perfil.direccion if perfil.direccion else ''
+    calle_actual = ''
+    comuna_actual = 'Quillota'
+    
+    if direccion_actual and ', ' in direccion_actual:
+        partes = direccion_actual.rsplit(', ', 1)
+        calle_actual = partes[0]
+        comuna_actual = partes[1] if partes[1] in comunas else 'Quillota'
+    
+    if request.method == 'POST':
+        calle = request.POST.get('calle', '').strip()
+        comuna = request.POST.get('comuna', '')
+        
+        # Validar campos de dirección
+        if not calle:
+            messages.error(request, ' Debes ingresar tu calle y número.')
+        elif not comuna:
+            messages.error(request, ' Debes seleccionar una comuna.')
+        else:
+            # Guardar dirección completa
+            direccion_completa = f"{calle}, {comuna}"
+            perfil.direccion = direccion_completa
+            perfil.save()
+            
+            messages.success(request, ' Dirección actualizada correctamente.')
+            return redirect('perfil_cli')
+    
+    context = {
+        'nombre': usuario.first_name,
+        'apellido': usuario.last_name,
+        'email': usuario.email,
+        'comunas': comunas,
+        'calle_actual': calle_actual,
+        'comuna_actual': comuna_actual,
+    }
+    return render(request, 'vistas_cliente/actualizarDatos.html', context)
+
 
 #llamado de datos perfil supervisor
 @login_required
@@ -516,20 +566,23 @@ def eliminar_del_carrito(request, item_id):
     return redirect('ver_carrito')
 
 @login_required
-def actualizar_cantidad(request, item_id):
-    """Actualiza la cantidad de un producto en el carrito"""
+def actualizar_todo_carrito(request):
     if request.method == 'POST':
-        cantidad = int(request.POST.get('cantidad', 1))
-        carrito_item = get_object_or_404(CarritoItem, id=item_id, carrito__usuario=request.user)
-        carrito = carrito_item.carrito
+        carrito, created = Carrito.objects.get_or_create(usuario=request.user)
         
-        if cantidad > 0:
-            carrito_item.cantidad = cantidad
-            carrito_item.save()
-        else:
-            carrito_item.delete()
+        for item in carrito.items.all():
+            cantidad_key = f'cantidad_{item.id}'
+            if cantidad_key in request.POST:
+                nueva_cantidad = int(request.POST.get(cantidad_key, 0))
+                if nueva_cantidad > 0:
+                    item.cantidad = nueva_cantidad
+                    item.save()
+                else:
+                    item.delete()
         
         # Actualizar sesión
         request.session['cantidad_carrito'] = carrito.get_cantidad_items()
-    
+        
     return redirect('ver_carrito')
+
+

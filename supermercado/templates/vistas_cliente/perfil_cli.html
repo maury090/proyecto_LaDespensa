@@ -22,8 +22,34 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="{% url 'perfil_cli' %}">Mi Perfil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    <li class="nav-item dropdown active">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Productos</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'alimentos' %}">Alimentacion</a></li>
+                            <li><a class="dropdown-item" href="{% url 'bebestibles' %}">Bebestibles</a></li>
+                            <li><a class="dropdown-item" href="{% url 'aseo' %}">Aseo</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conocenos' %}">Conocenos</a></li>
+                    {% if not user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
+                    {% endif %}
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <li class="nav-item"><a class="nav-link active" href="{% url 'perfil_cli' %}">{{ user.first_name }} {{ user.last_name }}</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'ver_carrito' %}">
+                                 Carrito 
+                                {% if cantidad_items > 0 %}
+                                    <span class="badge bg-danger rounded-pill">{{ cantidad_items }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                    {% endif %}
+                    {% if user.is_authenticated and user.is_staff %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -34,7 +60,7 @@
             <div class="col-md-8 mx-auto">
                 <div class="card shadow perfil-card">
                     <div class="card-header bg-success text-white">
-                        <h3 class="mb-0" align="center"> Mi Perfil</h3>
+                        <h3 class="mb-0" align="center"> Mis datos</h3>
                     </div>
                     <div class="card-body">
                         <table class="table table-borderless">
@@ -67,7 +93,8 @@
                         </table>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="#" class="btn btn-verde">Actualizar perfil</a> <br>
+                        <a href="#" class="btn btn-verde">Mis pedidos</a> <br>
+                        <a href="{% url 'actualizarDatos'%}" class="btn btn-verde">Actualizar informacion</a> <br>
                         <a href="{% url 'logout' %}" class="btn btn-danger">Cerrar Sesión</a>
                     </div>
                 </div>
