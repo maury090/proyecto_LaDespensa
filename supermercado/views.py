@@ -541,10 +541,14 @@ def agregar_al_carrito(request, producto_id):
 def ver_carrito(request):
     carrito, created = Carrito.objects.get_or_create(usuario=request.user)
     items = carrito.items.all()
-    total = carrito.get_total()
     
-    # Guardar la cantidad en la sesión para usarla en el navbar
-    request.session['cantidad_carrito'] = carrito.get_cantidad_items()
+    # Calcular total con descuento
+    total = 0
+    for item in items:
+        if item.producto.mostrar_en_index:
+            total += item.cantidad * int(item.producto.precio * 0.9)
+        else:
+            total += item.get_subtotal()
     
     context = {
         'items': items,
@@ -585,4 +589,52 @@ def actualizar_todo_carrito(request):
         
     return redirect('ver_carrito')
 
-
+#vista preparacion de pedido previo pago
+@login_required
+def revisionPedido(request):
+    usuario = request.user
+    perfil = usuario.perfil
+    
+    carrito, created = Carrito.objects.get_or_create(usuario=usuario)
+    items = carrito.items.all()
+    
+    if not items:
+        messages.warning(request, '❌ Tu carrito está vacío.')
+        return redirect('ver_carrito')
+    
+    total = 0
+    for item in items:
+        if item.producto.mostrar_en_index:
+            precio_item = int(item.producto.precio * 0.9)
+            total += item.cantidad * precio_item
+        else:
+            total += item.get_subtotal()
+    
+    rut = perfil.rut if perfil.rut else 'No especificado'
+    if rut and rut != 'No especificado' and len(rut) > 1:
+        if rut[-1].isdigit():
+            rut_formateado = f"{rut[:-1]}-{rut[-1]}"
+        else:
+            rut_formateado = f"{rut[:-1]}-{rut[-1].upper()}"
+    else:
+        rut_formateado = 'No especificado'
+    
+    # ========== CORRECCIÓN ==========
+    direccion = perfil.direccion if perfil.direccion else 'No especificada'
+    tiene_direccion = direccion != 'No especificada' and direccion != 'Domicilio no especificado'
+    # =================================
+    
+    costo_despacho = 1000
+    
+    context = {
+        'items': items,
+        'total': total,
+        'nombre': usuario.first_name,
+        'apellido': usuario.last_name,
+        'rut': rut_formateado,
+        'direccion': direccion,
+        'tiene_direccion': tiene_direccion,
+        'costo_despacho': costo_despacho,
+        'cantidad_items': carrito.get_cantidad_items(),
+    }
+    return render(request, 'vistas_cliente/revisionPedido.html', context)

@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión del Pedido - La Despensa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo">
+            <span class="texto_marca">Supermercado La Despensa</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Inicio</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Productos</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'alimentos' %}">Alimentacion</a></li>
+                        <li><a class="dropdown-item" href="{% url 'bebestibles' %}">Bebestibles</a></li>
+                        <li><a class="dropdown-item" href="{% url 'aseo' %}">Aseo</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'conocenos' %}">Conocenos</a></li>
+                {% if not user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
+                {% endif %}
+                {% if user.is_authenticated and not user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'perfil_cli' %}">{{ user.first_name }} {{ user.last_name }}</a></li>
+                    <li class="nav-item"><a class="nav-link active disabled" href="{% url 'ver_carrito'%}">Carrito</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                {% endif %}
+                {% if user.is_authenticated and user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4 text-center"> Revisión del Pedido</h2>
+
+            <!-- Tabla de productos -->
+            <div class="table-responsive">
+                <table class="carrito-tabla">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td data-label="Imagen">
+                                <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="img-thumbnail" style="max-width: 100px;">
+                            </td>
+                            <td data-label="Producto">
+                                <strong>{{ item.producto.nombre }}</strong><br>
+                                <small class="text-muted">Cód: {{ item.producto.codigo }}</small>
+                            </td>
+                            <td data-label="Precio">
+                                {% if item.producto.mostrar_en_index %}
+                                    <strong class="text-success">${{ item.get_precio_con_descuento }}</strong>
+                                {% else %}
+                                    ${{ item.producto.precio }}
+                                {% endif %}
+                            </td>
+                            <td data-label="Cantidad">{{ item.cantidad }}</td>
+                            <td data-label="Subtotal" class="fw-bold">
+                                {% if item.producto.mostrar_en_index %}
+                                    ${{ item.get_subtotal_con_descuento }}
+                                {% else %}
+                                    ${{ item.get_subtotal }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold fs-5">Subtotal:</td>
+                            <td class="fw-bold fs-5">${{ total }}</td>
+                        </tr>
+                        <tr id="filaDespacho" style="display: none;">
+                            <td colspan="3" class="text-end fw-bold fs-6">Costo de despacho:</td>
+                            <td class="fw-bold fs-6 text-success">+ ${{ costo_despacho }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold fs-4">Total a pagar:</td>
+                            <td class="fw-bold fs-3 text-success" id="totalFinal" data-total-original="{{ total }}" data-costo-despacho="{{ costo_despacho }}">
+                                ${{ total }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Datos del cliente -->
+            <div class="mt-4 p-3 bg-light rounded">
+                <h5 class="mb-3"> Datos del Cliente</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <strong>Nombre completo:</strong>
+                        <p class="mb-0">{{ nombre }} {{ apellido }}</p>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>RUT:</strong>
+                        <p class="mb-0">{{ rut }}</p>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>Dirección:</strong>
+                        <p class="mb-0">
+                            {% if tiene_direccion %}
+                                {{ direccion }}
+                            {% else %}
+                                <span class="text-muted">No especificada</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Método de entrega -->
+            <div class="mt-4 p-3 bg-white border rounded">
+                <h5 class="mb-3"> Método de entrega</h5>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="metodoEntrega" id="retiroTienda" value="retiro" checked>
+                    <label class="form-check-label" for="retiroTienda">
+                        <strong>Retiro en tienda</strong>
+                        <span class="text-muted">(sin costo adicional)</span>
+                    </label>
+                </div>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="metodoEntrega" id="despachoDomicilio" value="despacho" 
+                           {% if not tiene_direccion %}disabled{% endif %}>
+                    <label class="form-check-label" for="despachoDomicilio" 
+                           {% if not tiene_direccion %}style="color: #6c757d;"{% endif %}>
+                        <strong>Despacho a domicilio</strong>
+                        <span class="text-muted">(+ ${{ costo_despacho }})</span>
+                    </label>
+                    {% if not tiene_direccion %}
+                        <div class="text-danger small mt-1">
+                            <i class="fas fa-exclamation-triangle"></i> Para acceder a esta función debe ingresar su domicilio.
+                            <a href="{% url 'actualizarDatos' %}" class="text-decoration-none">Actualizar dirección</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                <a href="{% url 'ver_carrito' %}" class="btn-seguir">
+                    <i class="fas fa-arrow-left"></i> Volver al carrito
+                </a>
+                <a href="#" class="btn-pagar" id="btnConfirmar">
+                    <i class="fas fa-check-circle"></i> Confirmar pedido
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+<br><br>
+
+<footer class="footer-custom">
+      <div class="container text-center">
+          <div class="row py-4">
+              <div class="col-md-4 mb-3">
+                <br>
+                  <h5 class="footer-brand">Supermercado La Despensa</h5>
+                  <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="Logo" class="footer-logo mb-2">
+                  <p class="small">Más cerca de ti</p>
+              </div>
+              <div class="col-md-4 mb-3">
+                <br>
+                  <h6 class="text-uppercase fw-bold">Enlaces</h6>
+                  <ul class="list-unstyled">
+                    <br>
+                      <li><a href="{% url 'index' %}" class="footer-link">Inicio</a></li>
+                      {% if not user.is_authenticated %}
+                          <li><a href="{% url 'crearUsuario' %}" class="footer-link">Registrate como cliente</a></li>
+                      {% else %}
+                        <li><span class="footer-link text-muted" style="cursor: not-allowed; opacity: 0.6;">Registrate como cliente</span></li>
+                      {% endif %}
+                        <li><a href="{% url 'conocenos' %}" class="footer-link">Conocenos</a></li>
+                  </ul>
+              </div>
+              <div class="col-md-4 mb-3">
+                  <br>
+                  <h6 class="text-uppercase fw-bold">Contacto</h6>
+                  <br>
+                  <p class="small mb-0">info@ladespensa.cl</p>
+                  <p class="small">+56 9 1234 5678</p>
+              </div>
+          </div>
+          <hr class="footer-divider">
+          <div class="py-3">
+              <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
+          </div>
+      </div>
+    </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/revisionPedido.js' %}"></script>
+</body>
+</html>

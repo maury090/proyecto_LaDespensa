@@ -60,7 +60,7 @@
 <div class="container mt-5 pt-5">
     <div class="row">
         <div class="col-12">
-            <h2 class="mb-4 text-center">🛒 Mi Carrito</h2>
+            <h2 class="mb-4 text-center"> Mi Carrito</h2>
             
             {% if items %}
                 <form method="POST" action="{% url 'actualizar_todo_carrito' %}" id="formCarrito">
@@ -85,19 +85,31 @@
                                             <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="img-thumbnail" style="max-width: 80px;">
                                         {% else %}
                                             <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                📦
+                                                Imagen no disponible
                                             </div>
                                         {% endif %}
                                     </td>
                                     <td data-label="Producto">
                                         <strong>{{ item.producto.nombre }}</strong><br>
-                                        <small class="text-muted">Cód: {{ item.producto.codigo }}</small>
+                                        <small class="text-muted">SKU: {{ item.producto.codigo }}</small>
                                     </td>
-                                    <td data-label="Precio">${{ item.producto.precio }}</td>
+                                    <td data-label="Precio">
+                                        {% if item.producto.mostrar_en_index %}
+                                            <strong class="text-success">${{ item.get_precio_con_descuento }}</strong>
+                                        {% else %}
+                                            ${{ item.producto.precio }}
+                                        {% endif %}
+                                    </td>
                                     <td data-label="Cantidad">
                                         <input type="number" name="cantidad_{{ item.id }}" value="{{ item.cantidad }}" min="0" style="width: 80px;" class="form-control form-control-sm">
                                     </td>
-                                    <td data-label="Subtotal" class="fw-bold">${{ item.get_subtotal }}</td>
+                                    <td data-label="Subtotal" class="fw-bold">
+                                        {% if item.producto.mostrar_en_index %}
+                                            ${{ item.get_subtotal_con_descuento }}
+                                        {% else %}
+                                            ${{ item.get_subtotal }}
+                                        {% endif %}
+                                    </td>
                                     <td data-label="Acciones">
                                         <a href="{% url 'eliminar_del_carrito' item.id %}" class="btn-eliminar" onclick="return confirm('¿Eliminar este producto?')">
                                             <i class="fas fa-trash"></i> Eliminar
@@ -122,8 +134,8 @@
                         <button type="submit" class="btn-actualizar">
                             <i class="fas fa-sync-alt"></i> Actualizar carrito
                         </button>
-                        <a href="#" class="btn-pagar">
-                            <i class="fas fa-credit-card"></i> Proceder al pago
+                        <a href="{% url 'revisionPedido' %}" class="btn-pagar">
+                            <i class="fas fa-credit-card"></i> Siguiente
                         </a>
                     </div>
                 </form>

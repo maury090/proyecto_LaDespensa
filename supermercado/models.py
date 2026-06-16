@@ -112,3 +112,13 @@ class CarritoItem(models.Model):
     def get_subtotal(self):
         """Calcula el subtotal del item (cantidad * precio)"""
         return self.cantidad * self.producto.precio
+    
+    def get_precio_con_descuento(self):
+        """Retorna el precio del producto con descuento si aplica"""
+        if self.producto.mostrar_en_index:
+            return int(self.producto.precio * 0.9)  # 10% de descuento
+        return self.producto.precio
+    
+    def get_subtotal_con_descuento(self):
+        """Calcula el subtotal con descuento"""
+        return self.cantidad * self.get_precio_con_descuento()
