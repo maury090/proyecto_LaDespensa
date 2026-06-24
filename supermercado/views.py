@@ -738,3 +738,23 @@ def mis_pedidos(request):
     }
     
     return render(request, 'vistas_cliente/misPedidos.html', context)
+
+@login_required
+def detalle_pedido(request, pedido_id):
+    """Muestra el detalle de un pedido específico"""
+    usuario = request.user
+    
+    # Obtener el pedido o devolver 404 si no existe o no pertenece al usuario
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=usuario)
+    
+    # Obtener los items del pedido
+    items = pedido.items.all()
+    
+    context = {
+        'pedido': pedido,
+        'items': items,
+        'total_items': items.count(),
+        'total_productos': sum(item.cantidad for item in items)
+    }
+    
+    return render(request, 'vistas_cliente/detallePedido.html', context)

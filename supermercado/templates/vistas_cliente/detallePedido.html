@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Pedido #{{ pedido.id }} - La Despensa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+    <style>
+        .detalle-card {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .detalle-card .card-body {
+            padding: 2rem;
+        }
+        .detalle-card .info-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detalle-card .info-item:last-child {
+            border-bottom: none;
+        }
+        .detalle-card .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 180px;
+            display: inline-block;
+        }
+        .detalle-card .info-value {
+            color: #2c3e50;
+        }
+        @media (max-width: 576px) {
+            .detalle-card .info-label {
+                display: block;
+                min-width: auto;
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo">
+            <span class="texto_marca">Supermercado La Despensa</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Inicio</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Productos</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'alimentos' %}">Alimentacion</a></li>
+                        <li><a class="dropdown-item" href="{% url 'bebestibles' %}">Bebestibles</a></li>
+                        <li><a class="dropdown-item" href="{% url 'aseo' %}">Aseo</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'conocenos' %}">Conocenos</a></li>
+                {% if not user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
+                {% endif %}
+                {% if user.is_authenticated and not user.is_staff %}
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'perfil_cli' %}">{{ user.first_name }} {{ user.last_name }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'mis_pedidos' %}">Mis Pedidos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                {% endif %}
+                {% if user.is_authenticated and user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-12">
+           
+            <!-- Card del pedido - Más ancha -->
+            <div class="card shadow detalle-card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">📦 Pedido #{{ pedido.id }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <!-- Información en formato horizontal -->
+                    <div class="info-item">
+                        <span class="info-label">📅 Fecha:</span>
+                        <span class="info-value">{{ pedido.fecha|date:"d/m/Y H:i" }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">📌 Estado:</span>
+                        <span class="badge {% if pedido.estado == 'confirmado' %}bg-success{% elif pedido.estado == 'enviado' %}bg-primary{% elif pedido.estado == 'entregado' %}bg-info{% else %}bg-secondary{% endif %} fs-6">
+                            {{ pedido.get_estado_display }}
+                        </span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">🚚 Método de entrega:</span>
+                        <span class="info-value">{{ pedido.get_metodo_entrega_display }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">📍 Dirección de despacho:</span>
+                        <span class="info-value">{{ pedido.direccion }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">💰 Total pagado:</span>
+                        <span class="info-value fs-3 text-success fw-bold">${{ pedido.total }}</span>
+                    </div>
+
+                    <hr>
+
+                    <!-- Productos -->
+                    <h5 class="mb-3">🛒 Productos</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-success">
+                                <tr>
+                                    <th style="width: 40%;">Producto</th>
+                                    <th style="width: 20%;">Cantidad</th>
+                                    <th style="width: 20%;">Precio unitario</th>
+                                    <th style="width: 20%;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.producto.nombre }}</strong>
+                                        <br>
+                                        <small class="text-muted">Código: {{ item.producto.codigo }}</small>
+                                    </td>
+                                    <td class="text-center">{{ item.cantidad }}</td>
+                                    <td class="text-center">${{ item.precio_unitario }}</td>
+                                    <td class="text-center fw-bold">${{ item.subtotal }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-success">
+                                    <td colspan="3" class="text-end fw-bold fs-5">Total:</td>
+                                    <td class="text-center fw-bold fs-4 text-success">${{ pedido.total }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Botón volver -->
+                    <div class="text-center mt-4">
+                        <a href="{% url 'mis_pedidos' %}" class="btn btn-verde">
+                            <i class="fas fa-arrow-left"></i> Volver a mis pedidos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer-custom mt-5">
+    <div class="container text-center">
+        <div class="py-3">
+            <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

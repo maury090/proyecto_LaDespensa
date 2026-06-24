@@ -29,7 +29,8 @@ urlpatterns = [
 
     path('carrito/revisionPedido/',views.revisionPedido, name='revisionPedido'),
     path('confirmar-pedido/', views.confirmar_pedido, name='confirmar_pedido'),
-     path('pago-exitoso/', views.pago_exitoso, name='pago_exitoso'),
-     path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
+    path('pago-exitoso/', views.pago_exitoso, name='pago_exitoso'),
+    path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
+    path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
 ]
 
