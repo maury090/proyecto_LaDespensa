@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/design.css' %}">
+
 </head>
 <body>
 
@@ -74,7 +75,7 @@
                             </td>
                             <td data-label="Producto">
                                 <strong>{{ item.producto.nombre }}</strong><br>
-                                <small class="text-muted">Cód: {{ item.producto.codigo }}</small>
+                                <small class="text-muted">SKU: {{ item.producto.codigo }}</small>
                             </td>
                             <td data-label="Precio">
                                 {% if item.producto.mostrar_en_index %}
@@ -172,10 +173,15 @@
                 <a href="{% url 'ver_carrito' %}" class="btn-seguir">
                     <i class="fas fa-arrow-left"></i> Volver al carrito
                 </a>
-                <a href="#" class="btn-pagar" id="btnConfirmar">
-                    <i class="fas fa-check-circle"></i> Confirmar pedido
-                </a>
             </div>
+            <!-- Botón de pago simulado -->
+            <form method="POST" action="{% url 'confirmar_pedido' %}" class="text-center mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="metodo_entrega" id="metodoEntregaInput" value="retiro">
+                <button type="submit" class="btn-pagar" style="background-color: #27ae60; padding: 12px 40px; font-size: 1.1rem;">
+                    <i class="fas fa-check-circle"></i> Confirmar pedido
+                </button>
+            </form>
 
         </div>
     </div>
@@ -220,7 +226,9 @@
       </div>
     </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/revisionPedido.js' %}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/revisionPedido.js' %}"></script>
+    <script src="{% static 'js/simulacionPago.js' %}"></script>
 </body>
 </html>

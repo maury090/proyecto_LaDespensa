@@ -1,12 +1,134 @@
-{% load static%}
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mis Pedidos - La Despensa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
 </head>
 <body>
+
+<nav class="navbar navbar-expand-lg mi-nav-personalizada fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'imagenes/imagenes_propaganda/la_desp_logo.png' %}" alt="" id="logo">
+            <span class="texto_marca">Supermercado La Despensa</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Inicio</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Productos</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'alimentos' %}">Alimentacion</a></li>
+                        <li><a class="dropdown-item" href="{% url 'bebestibles' %}">Bebestibles</a></li>
+                        <li><a class="dropdown-item" href="{% url 'aseo' %}">Aseo</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'conocenos' %}">Conocenos</a></li>
+                {% if not user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
+                {% endif %}
+                {% if user.is_authenticated and not user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'perfil_cli' %}">{{ user.first_name }} {{ user.last_name }}</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'mis_pedidos' %}">Mis Pedidos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                {% endif %}
+                {% if user.is_authenticated and user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'panel_admin' %}">Panel Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-5">
+    <h2 class="mb-4 text-center"> Mis Pedidos</h2>
     
+    {% if pedidos %}
+        <div class="row">
+            {% for pedido_data in pedidos %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Pedido #{{ pedido_data.pedido.id }}</span>
+                            <span class="badge bg-light text-dark">{{ pedido_data.pedido.fecha|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <span class="badge {% if pedido_data.pedido.estado == 'confirmado' %}bg-success{% elif pedido_data.pedido.estado == 'enviado' %}bg-primary{% elif pedido_data.pedido.estado == 'entregado' %}bg-info{% else %}bg-secondary{% endif %}">
+                                {{ pedido_data.pedido.get_estado_display }}
+                            </span>
+                            <span class="badge bg-light text-dark ms-1">
+                                <i class="fas fa-truck"></i> {{ pedido_data.pedido.get_metodo_entrega_display }}
+                            </span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-2">
+                            <strong>Productos:</strong>
+                            <ul class="list-unstyled mb-0">
+                                {% for item in pedido_data.items %}
+                                <li class="small">
+                                    {{ item.cantidad }}x {{ item.producto.nombre }}
+                                    <span class="text-muted">(${{ item.precio_unitario }})</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <span class="fw-bold fs-5 text-success">${{ pedido_data.pedido.total }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Dirección:</small>
+                            <small class="text-muted">{{ pedido_data.pedido.direccion }}</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent text-center">
+                        <a href="#" class="btn btn-sm btn-verde">Ver detalle</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted">Total de pedidos: {{ total_pedidos }}</p>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center p-5">
+            <i class="fas fa-box fa-4x mb-3 text-muted"></i>
+            <h4>No tienes pedidos realizados</h4>
+            <p>¡Realiza tu primera compra y vuelve para ver tu historial!</p>
+            <a href="{% url 'index' %}" class="btn btn-verde mt-2">
+                <i class="fas fa-store"></i> Ir a la tienda
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<footer class="footer-custom mt-5">
+    <div class="container text-center">
+        <div class="py-3">
+            <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

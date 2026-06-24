@@ -122,3 +122,46 @@ class CarritoItem(models.Model):
     def get_subtotal_con_descuento(self):
         """Calcula el subtotal con descuento"""
         return self.cantidad * self.get_precio_con_descuento()
+    
+
+#pedido
+class Pedido(models.Model):
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('confirmado', 'Confirmado'),
+        ('enviado', 'Enviado'),
+        ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
+    ]
+    
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pedidos')
+    fecha = models.DateTimeField(auto_now_add=True)
+    total = models.IntegerField()
+    direccion = models.TextField()
+    metodo_entrega = models.CharField(max_length=20, choices=[('retiro', 'Retiro en tienda'), ('despacho', 'Despacho a domicilio')])
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Pedido'
+        verbose_name_plural = 'Pedidos'
+        ordering = ['-fecha']
+    
+    def __str__(self):
+        return f"Pedido #{self.id} - {self.usuario.username}"
+
+
+class PedidoItem(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='items')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.IntegerField()
+    subtotal = models.IntegerField()
+    
+    class Meta:
+        verbose_name = 'Item del pedido'
+        verbose_name_plural = 'Items del pedido'
+    
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre}"

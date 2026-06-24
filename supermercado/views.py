@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Producto, Categoria , Carrito, CarritoItem
+from .models import Producto, Categoria , Carrito, CarritoItem, Pedido, PedidoItem
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
@@ -10,6 +10,8 @@ from django.contrib.auth import logout as auth_logout
 import re
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
+import mercadopago
+from django.conf import settings
 
 
 
@@ -636,5 +638,103 @@ def revisionPedido(request):
         'tiene_direccion': tiene_direccion,
         'costo_despacho': costo_despacho,
         'cantidad_items': carrito.get_cantidad_items(),
+        'MERCADO_PAGO_PUBLIC_KEY': settings.MERCADO_PAGO_PUBLIC_KEY,
     }
     return render(request, 'vistas_cliente/revisionPedido.html', context)
+
+@login_required
+def confirmar_pedido(request):
+    if request.method != 'POST':
+        return redirect('revisionPedido')
+    
+    usuario = request.user
+    perfil = usuario.perfil
+    
+    # Obtener carrito
+    carrito, created = Carrito.objects.get_or_create(usuario=usuario)
+    items = carrito.items.all()
+    
+    if not items:
+        messages.error(request, '❌ Tu carrito está vacío.')
+        return redirect('ver_carrito')
+    
+    # Obtener método de entrega
+    metodo_entrega = request.POST.get('metodo_entrega', 'retiro')
+    
+    # Calcular total
+    total = 0
+    for item in items:
+        if item.producto.mostrar_en_index:
+            precio = int(item.producto.precio * 0.9)
+        else:
+            precio = item.producto.precio
+        total += precio * item.cantidad
+    
+    if metodo_entrega == 'despacho':
+        total += 1000
+    
+    # Obtener dirección
+    direccion = perfil.direccion if perfil.direccion else 'No especificada'
+    
+    # Crear pedido
+    pedido = Pedido.objects.create(
+        usuario=usuario,
+        total=total,
+        direccion=direccion,
+        metodo_entrega=metodo_entrega,
+        estado='confirmado'
+    )
+    
+    # Crear items del pedido
+    for item in items:
+        if item.producto.mostrar_en_index:
+            precio = int(item.producto.precio * 0.9)
+        else:
+            precio = item.producto.precio
+        
+        PedidoItem.objects.create(
+            pedido=pedido,
+            producto=item.producto,
+            cantidad=item.cantidad,
+            precio_unitario=precio,
+            subtotal=precio * item.cantidad
+        )
+    
+    # Vaciar carrito
+    carrito.items.all().delete()
+    
+    messages.success(request, f'✅ ¡Pedido #{pedido.id} confirmado! Gracias por tu compra.')
+    return redirect('pago_exitoso')
+
+@login_required
+def pago_exitoso(request):
+    """Página de confirmación de pedido exitoso"""
+    return render(request, 'vistas_cliente/pago_exitoso.html')
+
+
+# vista de pedidos del cliente
+@login_required
+def mis_pedidos(request):
+    """Muestra el historial de pedidos del usuario"""
+    usuario = request.user
+    
+    # Obtener todos los pedidos del usuario, ordenados por fecha (más reciente primero)
+    pedidos = Pedido.objects.filter(usuario=usuario).order_by('-fecha')
+    
+    # Preparar datos para cada pedido
+    pedidos_data = []
+    for pedido in pedidos:
+        items = pedido.items.all()
+        pedidos_data.append({
+            'pedido': pedido,
+            'items': items,
+            'total_items': items.count(),
+            'total_productos': sum(item.cantidad for item in items)
+        })
+    
+    context = {
+        'pedidos': pedidos_data,
+        'total_pedidos': len(pedidos_data)
+    }
+    
+    return render(request, 'vistas_cliente/misPedidos.html', context)

@@ -142,3 +142,9 @@ AUTHENTICATION_BACKENDS = [
     'supermercado.autenticacion_login.EmailOrUsernameBackend',
     'django.contrib.auth.backends.ModelBackend',  # Backup por si falla
 ]
+
+
+# portal de pago /// mercado pago 
+
+MERCADO_PAGO_ACCESS_TOKEN = 'TEST-APP_USR-3335108429381099-062411-acbff0cee6e8c0ad4e6dee2d0ce193f5-3496240656'
+MERCADO_PAGO_PUBLIC_KEY = 'TEST-APP_USR-d169621c-365a-4a06-b097-fcc1afd90dcc'
