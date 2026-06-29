@@ -56,15 +56,6 @@
                         <h3 class="mb-0" align="center"> Actualizar Datos</h3>
                     </div>
                     <div class="card-body">
-                        <!-- Mensajes de Django -->
-                        {% if messages %}
-                            {% for message in messages %}
-                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            {% endfor %}
-                        {% endif %}
 
                         <form method="POST" action="{% url 'actualizarDatos' %}">
                             {% csrf_token %}

@@ -86,7 +86,7 @@
         <div class="col-12">
            
             <!-- Card del pedido - Más ancha -->
-            <div class="card shadow detalle-card">
+            <div class="card detalle-card card-detalle-pedido">
                 <div class="card-header bg-success text-white">
                     <h3 class="mb-0">📦 Pedido #{{ pedido.id }}</h3>
                 </div>
@@ -140,7 +140,7 @@
                                     <td>
                                         <strong>{{ item.producto.nombre }}</strong>
                                         <br>
-                                        <small class="text-muted">Código: {{ item.producto.codigo }}</small>
+                                        <small class="text-muted">SKU: {{ item.producto.codigo }}</small>
                                     </td>
                                     <td class="text-center">{{ item.cantidad }}</td>
                                     <td class="text-center">${{ item.precio_unitario }}</td>

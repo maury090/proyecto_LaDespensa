@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from .models import Producto, Categoria , Carrito, CarritoItem, Pedido, PedidoItem
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -9,8 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 import re
 from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render, redirect, get_object_or_404
-import mercadopago
 from django.conf import settings
 
 
@@ -758,3 +756,115 @@ def detalle_pedido(request, pedido_id):
     }
     
     return render(request, 'vistas_cliente/detallePedido.html', context)
+
+
+
+#estadisticas 
+@user_passes_test(es_administrador)
+def estadisticas_admin(request):
+    from django.db.models import Sum, Count
+    
+    
+    productos = Producto.objects.all()
+    
+    # mas vendido
+    producto_estrella = None
+    ventas_estrella = 0
+    
+    # ventas totales por producto
+    for producto in productos:
+        total_vendido = PedidoItem.objects.filter(producto=producto).aggregate(total=Sum('cantidad'))['total'] or 0
+        if total_vendido > ventas_estrella:
+            ventas_estrella = total_vendido
+            producto_estrella = producto
+    
+    # menos vendido
+    producto_menos_vendido = None
+    ventas_menos = None
+    
+    for producto in productos:
+        total_vendido = PedidoItem.objects.filter(producto=producto).aggregate(total=Sum('cantidad'))['total'] or 0
+        if ventas_menos is None or total_vendido < ventas_menos:
+            ventas_menos = total_vendido
+            producto_menos_vendido = producto
+    
+    # stock critico
+    productos_stock_bajo = Producto.objects.filter(stock__lt=20).order_by('stock')
+    
+    # general 
+    total_pedidos = Pedido.objects.count()
+    total_clientes = User.objects.filter(is_staff=False, is_superuser=False).count()
+    ingresos_totales = Pedido.objects.aggregate(total=Sum('total'))['total'] or 0
+    
+    context = {
+        'producto_estrella': producto_estrella,
+        'ventas_estrella': ventas_estrella,
+        'producto_menos_vendido': producto_menos_vendido,
+        'ventas_menos': ventas_menos,
+        'productos_stock_bajo': productos_stock_bajo,
+        'total_pedidos': total_pedidos,
+        'total_clientes': total_clientes,
+        'ingresos_totales': ingresos_totales,
+        'total_productos': productos.count(),
+    }
+    
+    return render(request, 'vistas_admin/estadisticas_admin.html', context)
+
+
+#mas estadisticas   
+@user_passes_test(es_administrador)
+def otras_est_admin(request):
+    from django.db.models import Sum, Count
+    from django.utils import timezone
+    from datetime import timedelta, datetime
+    
+    # ========== 1. TOP 10 PRODUCTOS MÁS VENDIDOS ==========
+    top_productos = []
+    for producto in Producto.objects.all():
+        total_vendido = PedidoItem.objects.filter(producto=producto).aggregate(total=Sum('cantidad'))['total'] or 0
+        if total_vendido > 0:
+            top_productos.append({
+                'nombre': producto.nombre,
+                'total': total_vendido
+            })
+    
+    top_productos = sorted(top_productos, key=lambda x: x['total'], reverse=True)[:10]
+    
+    # ========== 2. ACTIVIDAD POR DÍA ==========
+    fecha_inicio = timezone.now() - timedelta(days=30)
+    
+    pedidos = Pedido.objects.filter(fecha__gte=fecha_inicio).order_by('fecha')
+    
+    pedidos_por_dia = {}
+    for pedido in pedidos:
+        fecha_str = pedido.fecha.strftime('%Y-%m-%d')
+        
+        if fecha_str not in pedidos_por_dia:
+            pedidos_por_dia[fecha_str] = {
+                'total_pedidos': 0,
+                'total_valor': 0
+            }
+        
+        pedidos_por_dia[fecha_str]['total_pedidos'] += 1
+        pedidos_por_dia[fecha_str]['total_valor'] += pedido.total
+    
+    dias_ordenados = sorted(pedidos_por_dia.keys())
+    
+    dias = []
+    cantidad_pedidos = []
+    valor_pedidos = []
+    
+    for fecha_str in dias_ordenados:
+        fecha_obj = datetime.strptime(fecha_str, '%Y-%m-%d')
+        dias.append(fecha_obj.strftime('%d/%m'))
+        cantidad_pedidos.append(pedidos_por_dia[fecha_str]['total_pedidos'])
+        valor_pedidos.append(pedidos_por_dia[fecha_str]['total_valor'])
+    
+    context = {
+        'top_productos': top_productos,
+        'dias': dias,
+        'cantidad_pedidos': cantidad_pedidos,
+        'valor_pedidos': valor_pedidos,
+    }
+    
+    return render(request, 'vistas_admin/otras_est_admin.html', context)

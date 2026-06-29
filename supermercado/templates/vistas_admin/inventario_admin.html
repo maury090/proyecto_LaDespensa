@@ -33,8 +33,7 @@
 </nav>
 
 <div class="container mt-5 pt-5">
-    <h2 class="mb-4" align="center"> Gestión de Inventario</h2>
-    
+    <h2 class="mb-4" align="center">📦 Gestión de Inventario</h2>
 
     <!-- Filtro por categoría -->
     <div class="card mb-4">
@@ -57,7 +56,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Tabla de productos -->
     <div class="table-responsive">
         <table class="table table-bordered table-hover" id="tablaProductos">
@@ -84,9 +83,9 @@
                     <td>{{ producto.stock }}</td>
                     <td>
                         {% if producto.mostrar_en_index %}
-                        <span class="badge bg-success"> Aplica 10%</span>
+                        <span class="badge bg-success">✅ Aplica 10%</span>
                         {% else %}
-                        <span class="badge bg-secondary"> No aplica</span>
+                        <span class="badge bg-secondary">❌ No aplica</span>
                         {% endif %}
                     </td>
                     <td>
@@ -127,50 +126,7 @@
     </div>
 </div>
 
-<footer class="footer-custom mt-5">
-    <div class="container text-center">
-        <div class="py-3">
-            <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
-        </div>
-    </div>
-</footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Filtro por categoría
-    const selectCategoria = document.getElementById('filtroCategoria');
-    const tabla = document.getElementById('tablaProductos');
-    const filas = tabla.querySelectorAll('tbody tr');
-
-    function filtrarProductos() {
-        const categoriaSeleccionada = selectCategoria.value;
-        
-        filas.forEach(fila => {
-            const categoria = fila.getAttribute('data-categoria') || '';
-            
-            if (categoriaSeleccionada === 'todas' || categoria === categoriaSeleccionada) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
-            }
-        });
-    }
-
-    selectCategoria.addEventListener('change', filtrarProductos);
-
-    // Modal de eliminación
-    const modalEliminar = document.getElementById('modalEliminar');
-    modalEliminar.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const productoId = button.getAttribute('data-id');
-        const productoNombre = button.getAttribute('data-nombre');
-        
-        const modalBody = document.getElementById('modalMensaje');
-        modalBody.innerHTML = `¿Estás seguro de eliminar el producto "<strong>${productoNombre}</strong>"? Esta acción no se puede deshacer.`;
-        
-        const btnConfirmar = document.getElementById('btnConfirmarEliminar');
-        btnConfirmar.href = `/admin/supermercado/producto/${productoId}/delete/`;
-    });
-</script>
+<script src="{% static 'js/inventario_admin.js' %}"></script>
 </body>
 </html>
