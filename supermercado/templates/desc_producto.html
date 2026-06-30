@@ -105,6 +105,7 @@
                                 
                                 <div class="mt-4">
                                     {% if producto.stock > 0 %}
+                                        <p><small>Para agregar productos al carrito debes estar previamente registrado</small></p>
                                         <button id="btnAgregarCarrito" data-producto-id="{{ producto.id_producto }}" class="btn-agregar">
                                             <i class="fas fa-cart-plus"></i> Agregar al carro
                                         </button>

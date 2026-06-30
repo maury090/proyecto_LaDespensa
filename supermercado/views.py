@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.conf import settings
 
 
-# ========== FUNCIONES DE VERIFICACIÓN DE ROLES ==========
+# roles
 def es_cliente(user):
     return user.is_authenticated and hasattr(user, 'perfil') and user.perfil.rol == 'cliente'
 
@@ -23,7 +23,7 @@ def es_administrador(user):
     return user.is_authenticated and user.is_staff
 
 
-# ========== VALIDACIÓN DE RUT ==========
+# rut
 def validar_rut_chileno(rut):
     rut = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
     if len(rut) < 2:
@@ -50,7 +50,7 @@ def validar_rut_chileno(rut):
     return dv_ingresado == dv_esperado
 
 
-# ========== VISTAS PRINCIPALES ==========
+# vistas
 def index(request):
     productos = Producto.objects.filter(mostrar_en_index=True)
     for producto in productos:
@@ -72,7 +72,7 @@ def conocenos(request):
     return render(request, 'conocenos.html', {'cantidad_items': cantidad_carrito})
 
 
-# ========== LOGIN ==========
+# login
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -100,7 +100,7 @@ def logout(request):
     return redirect('index')
 
 
-# ========== REGISTRO DE CLIENTE ==========
+# registro cli
 def crearUsuario(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
@@ -182,7 +182,7 @@ def crearUsuario(request):
 
             perfil = usuario.perfil
             perfil.rut = rut_limpio
-            perfil.rol = 'cliente'  # ← Rol CLIENTE
+            perfil.rol = 'cliente'  #rol cliente
             perfil.save()
 
             if is_ajax:
@@ -205,7 +205,7 @@ def crearUsuario(request):
     return render(request, 'crearUsuario.html')
 
 
-# ========== CATEGORÍAS ==========
+# categorias
 def alimentos(request):
     productos = Producto.objects.filter(categoria_id=4)
     for producto in productos:
@@ -280,7 +280,7 @@ def desc_producto(request, producto_id):
     return render(request, 'desc_producto.html', context)
 
 
-# ========== VISTAS DE ADMIN ==========
+# vista admin
 @login_required
 def panel_admin(request):
     usuario = request.user
@@ -303,20 +303,20 @@ def administracion_usuarios_admin(request):
     lista_usuarios = []
     
     for user in usuarios:
-        # ========== OBTENER RUT ==========
+        
         rut_display = "No especificado"
         
-        # 1. Intentar obtener desde el perfil
+        
         if hasattr(user, 'perfil') and user.perfil.rut:
             rut_display = user.perfil.rut
-        # 2. Si no, extraer del username
+        
         elif user.username.startswith('super_'):
             rut_display = user.username.replace('super_', '')
         elif user.username.startswith('cliente_'):
             rut_display = user.username.replace('cliente_', '')
         elif user.username.startswith('supervisor_'):
             rut_display = user.username.replace('supervisor_', '')
-        # =================================
+        
         
         lista_usuarios.append({
             'id': user.id,
@@ -343,7 +343,7 @@ def estadisticas_admin(request):
 
     productos = Producto.objects.all()
 
-    # Producto más vendido
+    # mas vendido
     producto_estrella = None
     ventas_estrella = 0
 
@@ -353,7 +353,7 @@ def estadisticas_admin(request):
             ventas_estrella = total_vendido
             producto_estrella = producto
 
-    # Producto menos vendido
+    # menos vendido
     producto_menos_vendido = None
     ventas_menos = None
 
@@ -434,7 +434,7 @@ def otras_est_admin(request):
     return render(request, 'vistas_admin/otras_est_admin.html', context)
 
 
-# ========== CREAR SUPERVISOR (ADMIN) ==========
+# creacion de supervisor
 @user_passes_test(es_administrador)
 def nuevo_usuario_admin(request):
     if request.method == 'POST':
@@ -452,22 +452,22 @@ def nuevo_usuario_admin(request):
 
         rut_limpio = str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
 
-        # ========== VALIDACIÓN: YA EXISTE UN SUPERVISOR CON ESTE RUT ==========
-        # 1. Verificar en el perfil
+        # validacion rut
+        
         supervisor_existente = PerfilCliente.objects.filter(rut=rut_limpio, rol='supervisor')
         if supervisor_existente.exists():
             messages.error(request, f'❌ Ya existe un supervisor con el RUT {rut_limpio}.')
             return render(request, 'vistas_admin/nuevo_usuario_admin.html')
 
-        # 2. Verificar en el username (por si el RUT quedó en el username)
+        
         usuarios_super = User.objects.filter(username__startswith='super_') | User.objects.filter(username__startswith='supervisor_')
         for user in usuarios_super:
             if rut_limpio in user.username:
                 messages.error(request, f'❌ Ya existe un supervisor con el RUT {rut_limpio}.')
                 return render(request, 'vistas_admin/nuevo_usuario_admin.html')
-        # =========================================================================
+       
 
-        # Generar correo único
+        # correo unico
         nombre_base = nombre[:2].lower()
         apellido_base = apellido[-2:].lower()
         base_email = f"{nombre_base}{apellido_base}@ladespensa.com"
@@ -478,7 +478,7 @@ def nuevo_usuario_admin(request):
             email = f"{nombre_base}{apellido_base}{contador}@ladespensa.com"
             contador += 1
 
-        # Generar username único
+        # username unico
         base_username = f"super_{rut_limpio}"
         username = base_username
         contador_user = 1
@@ -519,7 +519,7 @@ def nuevo_usuario_admin(request):
     return render(request, 'vistas_admin/nuevo_usuario_admin.html')
 
 
-# ========== VISTAS DE SUPERVISOR ==========
+# vistas superv
 @login_required
 def panel_supervisor(request):
     if not es_supervisor(request.user):
@@ -548,7 +548,7 @@ def inventario_supervisor(request):
     return render(request, 'vistas_supervisor/inventario_supervisor.html', context)
 
 
-# ========== VISTAS DE CLIENTE ==========
+# vistas cli
 @login_required
 def perfil_cli(request):
     if not es_cliente(request.user):
@@ -611,23 +611,17 @@ def actualizarDatos(request):
     return render(request, 'vistas_cliente/actualizarDatos.html', context)
 
 
-# ========== PERFIL SUPERVISOR (placeholder) ==========
-@login_required
-def perfil_superv(request):
-    return render(request, 'perfil_superv.html')
 
-
-# ========== VISTA PERFIL ADMIN ==========
 @user_passes_test(es_administrador)
 def vista_perfil_admin(request, usuario_id):
     usuario = get_object_or_404(User, id=usuario_id)
     perfil = usuario.perfil if hasattr(usuario, 'perfil') else None
 
-    # ========== OBTENER RUT ==========
+   
     if perfil and perfil.rut:
         rut_display = perfil.rut
     else:
-        # Extraer RUT del username
+        
         username = usuario.username
         if username.startswith('super_'):
             rut_display = username.replace('super_', '')
@@ -635,7 +629,7 @@ def vista_perfil_admin(request, usuario_id):
             rut_display = username.replace('cliente_', '')
         else:
             rut_display = "No especificado"
-    # =================================
+    
 
     datos_usuario = {
         'id': usuario.id,
@@ -643,7 +637,7 @@ def vista_perfil_admin(request, usuario_id):
         'first_name': usuario.first_name if usuario.first_name else "No especificado",
         'last_name': usuario.last_name if usuario.last_name else "No especificado",
         'email': usuario.email,
-        'rut': rut_display,  # ← Mostramos el RUT desde donde esté
+        'rut': rut_display,  
         'direccion': perfil.direccion if perfil and perfil.direccion else "No especificada",
         'telefono': perfil.telefono if perfil and perfil.telefono else "No especificado",
         'fecha_registro': usuario.date_joined,
@@ -655,7 +649,7 @@ def vista_perfil_admin(request, usuario_id):
     return render(request, 'vistas_admin/vista_perfil_admin.html', context)
 
 
-# ========== CARRITO ==========
+# carrito
 @login_required
 def agregar_al_carrito(request, producto_id):
     if request.method == 'POST':
@@ -732,7 +726,7 @@ def actualizar_todo_carrito(request):
     return redirect('ver_carrito')
 
 
-# ========== PEDIDOS ==========
+# pedidos
 @login_required
 def revisionPedido(request):
     usuario = request.user
@@ -845,7 +839,7 @@ def pago_exitoso(request):
     return render(request, 'vistas_cliente/pago_exitoso.html')
 
 
-# ========== HISTORIAL DE PEDIDOS ==========
+# historial pedidos
 @login_required
 def mis_pedidos(request):
     usuario = request.user
