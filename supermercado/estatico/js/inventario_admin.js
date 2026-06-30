@@ -24,24 +24,30 @@ document.addEventListener('DOMContentLoaded', function() {
         selectCategoria.addEventListener('change', filtrarProductos);
     }
 
-    // ========== MODAL DE ELIMINACIÓN ==========
-    const modalEliminar = document.getElementById('modalEliminar');
-    
-    if (modalEliminar) {
-        modalEliminar.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const productoId = button.getAttribute('data-id');
-            const productoNombre = button.getAttribute('data-nombre');
-            
-            const modalBody = document.getElementById('modalMensaje');
-            if (modalBody) {
-                modalBody.innerHTML = `¿Estás seguro de eliminar el producto "<strong>${productoNombre}</strong>"? Esta acción no se puede deshacer.`;
-            }
-            
-            const btnConfirmar = document.getElementById('btnConfirmarEliminar');
-            if (btnConfirmar) {
-                btnConfirmar.href = `/admin/supermercado/producto/${productoId}/delete/`;
-            }
-        });
-    }
 });
+
+// Modal de eliminación
+// Modal de eliminación
+const modalEliminar = document.getElementById('modalEliminar');
+
+if (modalEliminar) {
+    modalEliminar.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const productoId = button.getAttribute('data-id');
+        const productoNombre = button.getAttribute('data-nombre');
+        
+        const modalBody = document.getElementById('modalMensaje');
+        if (modalBody) {
+            modalBody.innerHTML = `
+                ¿Estás seguro de eliminar el producto <strong>"${productoNombre}"</strong>?
+            `;
+        }
+        
+        const btnConfirmar = document.getElementById('btnConfirmarEliminar');
+        if (btnConfirmar) {
+            // FORZAR la URL usando setAttribute
+            btnConfirmar.setAttribute('href', `/eliminar-producto/${productoId}/`);
+            console.log('URL asignada:', btnConfirmar.getAttribute('href')); // ← Para depurar
+        }
+    });
+}

@@ -876,3 +876,90 @@ body {
     width: 100% !important;
     height: 100% !important;
 }
+
+/* Card sin hover y más ancho - FORZADO */
+.card-nuevo-usuario {
+    max-width: 900px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    transition: none !important;
+    transform: none !important;
+}
+
+.card-nuevo-usuario:hover {
+    transform: none !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+}
+
+/* Forzar que el formulario ocupe todo el ancho del card */
+.card-nuevo-usuario .card-body {
+    padding: 2rem !important;
+}
+
+.card-nuevo-usuario .form-control {
+    padding: 12px 15px !important;
+    font-size: 1rem !important;
+}
+
+/* ========== BOTONES PARA CREAR SUPERVISOR ========== */
+
+.btn-crear-supervisor {
+    padding: 10px 40px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    min-width: 180px;
+}
+
+.btn-volver-supervisor {
+    padding: 10px 30px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    min-width: 140px;
+}
+
+#btn-crear-usuario {
+    min-width: 220px;
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+
+.btn-estadistica {
+    background-color: #6B8E4E;
+    color: white;
+    border: none;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    width: 220px; 
+    padding: 10px 25px;
+    border-radius: 8px;
+    display: inline-block;
+    text-decoration: none; 
+    text-align: center;
+}
+.btn-estadistica:hover {
+    background-color: #1a4331;
+    color: white;
+    transform: translateY(-1px);
+}
+.btn-warning{
+    color: black;
+    border: none;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    width: 220px; 
+    padding: 10px 25px;
+    border-radius: 8px;
+    display: inline-block;
+    text-decoration: none; 
+    text-align: center;
+}
+
+.btn-danger{
+    color: white;
+    border: none;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    width: 220px; 
+    padding: 10px 25px;
+    border-radius: 8px;
+    display: inline-block;
+    text-decoration: none; 
+    text-align: center;
+}

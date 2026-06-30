@@ -39,20 +39,22 @@
         <p class="lead">Has iniciado sesión como Administrador</p>
 
         <!--boton inventario-->
-        <a href="{% url 'inventario_admin' %}" class="btn btn-success btn-lg mx-2">Gestionar Inventario</a> <br><br>
+        <a href="{% url 'inventario_admin' %}" class="btn btn-success " id="btn-crear-usuario">Gestionar Inventario</a> <br><br>
 
         <!--gestion de usuarios-->
-        <a href="{% url 'administracion_usuarios_admin' %}" class="btn btn-success btn-lg mx-2">Gestionar Usuarios</a> <br><br>
+        <a href="{% url 'administracion_usuarios_admin' %}" class="btn btn-success " id="btn-crear-usuario">Gestionar Usuarios</a> <br><br>
         <!--ver vistas de la pagina-->
-        <a href="{% url 'index' %}" class="btn btn-success btn-lg mx-2">Revisar vistas</a> <br><br>
+        <a href="{% url 'index' %}" class="btn btn-success " id="btn-crear-usuario">Revisar vistas</a> <br><br>
+        <!--estadisticas-->
+        <a href="{% url 'estadisticas_admin' %}" class="btn btn-success " id="btn-crear-usuario">Revisar estadisticas</a><br><br>
 
         <!-- Botón rojo para cerrar sesión -->
-        <a href="{% url 'logout' %}" class="btn btn-danger btn-lg mt-4 px-5 py-3">
+        <a href="{% url 'logout' %}" class="btn btn-danger " id="btn-crear-usuario">
              Cerrar Sesión
         </a>
     </div>
 </div>
-
+<br>
 <footer class="footer-custom mt-5">
     <div class="container text-center">
         <div class="py-3">

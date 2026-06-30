@@ -33,14 +33,14 @@
 </nav>
 
 <div class="container mt-5 pt-5">
-    <h2 class="mb-4" align="center">📦 Gestión de Inventario</h2>
+    <h2 class="mb-4" align="center"> Gestión de Inventario</h2>
 
     <!-- Filtro por categoría -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row">
                 <div class="col-12 mb-3">
-                    <label class="form-label fw-bold">📂 Filtrar por categoría</label>
+                    <label class="form-label fw-bold"> Filtrar por categoría</label>
                     <select id="filtroCategoria" class="form-select form-select-lg">
                         <option value="todas">Todas las categorías</option>
                         {% for categoria in categorias %}
@@ -49,7 +49,7 @@
                     </select>
                 </div>
                 <div class="col-12">
-                    <a href="/admin/supermercado/producto/add/" class="btn btn-success w-100 py-2">
+                    <a href="{% url 'agregar_producto'%}" class="btn btn-success w-100 py-2">
                         <i class="fas fa-plus-circle"></i> Agregar nuevo producto
                     </a>
                 </div>
@@ -83,13 +83,13 @@
                     <td>{{ producto.stock }}</td>
                     <td>
                         {% if producto.mostrar_en_index %}
-                        <span class="badge bg-success">✅ Aplica 10%</span>
+                        <span class="badge bg-success"> Aplica 10%</span>
                         {% else %}
-                        <span class="badge bg-secondary">❌ No aplica</span>
+                        <span class="badge bg-secondary"> No aplica</span>
                         {% endif %}
                     </td>
                     <td>
-                        <a href="/admin/supermercado/producto/{{ producto.id_producto }}/change/" class="btn btn-warning btn-sm" title="Editar">
+                        <a href="{% url 'editar_producto' producto.id_producto %}" class="btn btn-warning btn-sm" title="Editar">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar" data-id="{{ producto.id_producto }}" data-nombre="{{ producto.nombre }}">
@@ -125,7 +125,13 @@
         </div>
     </div>
 </div>
-
+<footer class="footer-custom mt-5">
+    <div class="container text-center">
+        <div class="py-3">
+            <p class="small mb-0">&copy; 2026 La Despensa. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/inventario_admin.js' %}"></script>
 </body>

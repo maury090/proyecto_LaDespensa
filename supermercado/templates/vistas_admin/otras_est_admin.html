@@ -34,7 +34,7 @@
 </nav>
 
 <div class="container mt-5 pt-5">
-    <h2 class="mb-4 text-center">📈 Más Estadísticas</h2>
+    <h2 class="mb-4 text-center">Metricas</h2>
 
    <!-- Gráfico 1: Top 10 productos más vendidos -->
 <div class="row mb-5">
@@ -70,7 +70,7 @@
 
     <!-- Botón volver -->
     <div class="text-center mt-4">
-        <a href="{% url 'panel_admin' %}" class="btn btn-verde">
+        <a href="{% url 'panel_admin' %}" class="btn btn-registro">
             <i class="fas fa-arrow-left"></i> Volver al Panel
         </a>
     </div>
@@ -84,7 +84,7 @@
     </div>
 </footer>
 <script>
-    // Datos desde Django
+    // Datos desde Django terminal 
     window.datosProductos = {{ top_productos|safe }};
     window.datosDias = {{ dias|safe }};
     window.datosCantidad = {{ cantidad_pedidos|safe }};

@@ -42,11 +42,25 @@ class Producto(models.Model):
         return f"{self.nombre} - ${self.precio}"
 
 # Modelo para extender el usuario con más campos
+from django.db import models
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# ... tus modelos Categoria y Producto ...
+
 class PerfilCliente(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
     rut = models.CharField(max_length=12, unique=True, blank=True, null=True)
     direccion = models.TextField(blank=True, null=True, verbose_name="Dirección de domicilio")
     telefono = models.CharField(max_length=15, blank=True, null=True)
+    
+    ROL_CHOICES = [
+        ('cliente', 'Cliente'),
+        ('supervisor', 'Supervisor'),
+        ('admin', 'Administrador'),
+    ]
+    rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='cliente')
 
     class Meta:
         verbose_name = 'Perfil de Cliente'
@@ -58,13 +72,12 @@ class PerfilCliente(models.Model):
     def get_direccion(self):
         return self.direccion if self.direccion else "Domicilio no especificado"
 
-# Señal: cuando se crea un usuario, se crea automáticamente su perfil
+# Señales
 @receiver(post_save, sender=User)
 def crear_perfil_usuario(sender, instance, created, **kwargs):
     if created:
-        PerfilCliente.objects.create(usuario=instance)
+        PerfilCliente.objects.create(usuario=instance, rol='cliente')
 
-# Señal: cuando se guarda un usuario, se guarda su perfil
 @receiver(post_save, sender=User)
 def guardar_perfil_usuario(sender, instance, **kwargs):
     if hasattr(instance, 'perfil'):
