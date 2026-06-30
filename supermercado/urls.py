@@ -40,5 +40,8 @@ urlpatterns = [
     path('agregar-producto/', views.agregar_producto, name='agregar_producto'),
     path('eliminar-producto/<int:producto_id>/', views.eliminar_producto, name='eliminar_producto'),
     path('editar-producto/<int:producto_id>/', views.editar_producto, name='editar_producto'),
+    path('panel-supervisor/', views.panel_supervisor, name='panel_supervisor'),
+    path('ver-pedidos-supervisor/', views.ver_pedidos_supervisor, name='ver_pedidos_supervisor'),
+    path('detalle-pedido-supervisor/<int:pedido_id>/', views.detalle_pedido_supervisor, name='detalle_pedido_supervisor'),
 ]
 

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# Tabla de Categorías (para clasificar productos)
+# tabla categorias
 class Categoria(models.Model):
     id_categoria = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50, unique=True)
@@ -17,7 +17,7 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-# Tabla de Productos
+# productos
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
     codigo = models.CharField(max_length=20, unique=True)
@@ -145,7 +145,9 @@ class Pedido(models.Model):
         ('enviado', 'Enviado'),
         ('entregado', 'Entregado'),
         ('cancelado', 'Cancelado'),
-    ]
+
+]
+    
     
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pedidos')
     fecha = models.DateTimeField(auto_now_add=True)

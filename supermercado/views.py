@@ -1044,3 +1044,67 @@ def editar_producto(request, producto_id):
         'categorias': categorias,
     }
     return render(request, 'vistas_admin/editar_producto.html', context)
+
+#supervisor 
+@login_required
+def panel_supervisor(request):
+    if not es_supervisor(request.user):
+        messages.error(request, '❌ Acceso no autorizado.')
+        return redirect('index')
+    
+    usuario = request.user
+    nombre_completo = f"{usuario.first_name} {usuario.last_name}"
+    if not usuario.first_name and not usuario.last_name:
+        nombre_completo = usuario.username
+    
+    return render(request, 'vistas_supervisor/panel_supervisor.html', {'nombre_completo': nombre_completo})
+
+@login_required
+def ver_pedidos_supervisor(request):
+    if not es_supervisor(request.user):
+        messages.error(request, '❌ Acceso no autorizado.')
+        return redirect('index')
+    
+    # Obtener todos los pedidos con sus clientes
+    pedidos = Pedido.objects.all().order_by('-fecha')
+    
+    # Preparar datos para la tabla
+    pedidos_data = []
+    for pedido in pedidos:
+        pedidos_data.append({
+            'pedido': pedido,
+            'cliente': f"{pedido.usuario.first_name} {pedido.usuario.last_name}",
+            'total_items': pedido.items.count(),
+        })
+    
+    context = {
+        'pedidos': pedidos_data,
+        'total_pedidos': len(pedidos_data),
+    }
+    
+    return render(request, 'vistas_supervisor/ver_pedidos_supervisor.html', context)
+
+
+@login_required
+def detalle_pedido_supervisor(request, pedido_id):
+    if not es_supervisor(request.user):
+        messages.error(request, '❌ Acceso no autorizado.')
+        return redirect('index')
+    
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    items = pedido.items.all()
+    
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in dict(Pedido.ESTADO_CHOICES):
+            pedido.estado = nuevo_estado
+            pedido.save()
+            messages.success(request, f'✅ Estado del pedido actualizado a "{pedido.get_estado_display()}".')
+            return redirect('detalle_pedido_supervisor', pedido_id=pedido.id)
+    
+    context = {
+        'pedido': pedido,
+        'items': items,
+        'estados': Pedido.ESTADO_CHOICES,
+    }
+    return render(request, 'vistas_supervisor/detalle_pedido_supervisor.html', context)
